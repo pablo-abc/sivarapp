@@ -4,75 +4,71 @@ import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
+import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@github/time-elements/dist/relative-time-element.js';
 
 export const tagName = 'sv-toot';
 
 @customElement(tagName)
 export class SvToot extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-    }
+  static styles = [
+    css`
+      :host {
+        display: block;
+      }
 
-    #header {
-      display: flex;
-      align-items: center;
-      border-bottom: var(--sv-card-border, 1px solid rgba(0, 0, 0, 0.2));
-      padding: var(--sv-card-padding, 1rem);
-    }
+      sl-card {
+        width: 100%;
+      }
 
-    #content {
-      padding: var(--sv-card-padding, 1rem);
-    }
+      #header {
+        display: flex;
+        align-items: center;
+      }
 
-    #card {
-      border: var(--sv-card-border, 1px solid rgba(0, 0, 0, 0.2));
-      border-radius: var(--sv-card-radius, 10px);
-    }
+      a {
+        color: var(--sl-color-primary-800, blue);
+        text-decoration: none;
+      }
 
-    a {
-      color: var(--sv-color-link, blue);
-      text-decoration: none;
-    }
+      a:visited {
+        color: var(--sl-color-primary-800, blue);
+      }
 
-    a:visited {
-      color: var(--sv-color-link, blue);
-    }
+      .header__acct {
+        font-style: italic;
+      }
 
-    .header__acct {
-      font-style: italic;
-    }
+      .header__reblog {
+        opacity: 0.6;
+      }
 
-    .header__reblog {
-      opacity: 0.6;
-    }
+      .info {
+        display: flex;
+        flex-direction: column;
+      }
 
-    .info {
-      display: flex;
-      flex-direction: column;
-    }
+      .info relative-time {
+        opacity: 0.6;
+      }
 
-    .info relative-time {
-      opacity: 0.6;
-    }
+      sl-avatar {
+        margin-right: 0.5rem;
+      }
 
-    sl-avatar {
-      margin-right: 0.5rem;
-    }
+      #reblog-avatar {
+        position: relative;
+        margin-right: 0.5rem;
+      }
 
-    #reblog-avatar {
-      position: relative;
-      margin-right: 0.5rem;
-    }
-
-    #reblog-reblogger {
-      --size: 2rem;
-      position: absolute;
-      right: -0.5rem;
-      bottom: -0.5rem;
-    }
-  `;
+      #reblog-reblogger {
+        --size: 2rem;
+        position: absolute;
+        right: -0.5rem;
+        bottom: -0.5rem;
+      }
+    `,
+  ];
 
   @property({ type: Object })
   status?: Status;
@@ -117,7 +113,7 @@ export class SvToot extends LitElement {
     const reblog = this.status.reblog;
     const status = reblog || this.status;
     return html`
-      <div id="header">
+      <div slot="header" id="header">
         ${this.renderAvatar()}
         <div class="info">
           <a href=${status.account.url} rel="noreferrer">
@@ -144,10 +140,10 @@ export class SvToot extends LitElement {
 
   override render() {
     return html`
-      <div id="card">
+      <sl-card>
         ${this.renderHeader()}
         <div id="content">${this.renderContent()}</div>
-      </div>
+      </sl-card>
     `;
   }
 }

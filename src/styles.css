@@ -1,0 +1,5 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--sl-panel-background-color);
+  color: var(--sl-color-neutral-800);
+}

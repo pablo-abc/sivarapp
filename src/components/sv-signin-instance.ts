@@ -134,8 +134,10 @@ export class SvSigninInstance extends LitElement {
               const target = event.currentTarget as HTMLButtonElement;
               target.closest('form')?.requestSubmit();
             }}
-            >Sign in</sl-button
+            variant="primary"
           >
+            Sign in
+          </sl-button>
         </form>
       </felte-form>
     `;

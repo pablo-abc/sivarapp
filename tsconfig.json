@@ -25,6 +25,7 @@
       "@layouts/*": ["src/layouts/*"],
       "@utils/*": ["src/utils/*"],
       "@api/*": ["src/api/*"],
+      "@styles/*": ["src/styles/*"],
       "@types": ["src/types.ts"]
     }
   },
