@@ -23,6 +23,10 @@ export class SvTootCompose extends LitElement {
       margin-top: 1rem;
     }
 
+    [slot='summary'] sl-icon {
+      margin-left: 0.5rem;
+    }
+
     #options-group > *:not(:last-child) {
       margin-bottom: 2rem;
     }
@@ -59,7 +63,7 @@ export class SvTootCompose extends LitElement {
 
   renderVisibility() {
     return html`
-      <sl-tooltip content="visibility">
+      <sl-tooltip content="Visibility">
         <sl-icon name=${this.visibilityIcon}></sl-icon>
       </sl-tooltip>
     `;
@@ -75,6 +79,7 @@ export class SvTootCompose extends LitElement {
         <sl-textarea resize="auto" label="What's on your mind?"></sl-textarea>
         <sl-details>
           <span slot="summary">
+            <span>Options:</span>
             ${this.renderVisibility()}
             <sl-tooltip content="Sensitivity">
               <sl-icon

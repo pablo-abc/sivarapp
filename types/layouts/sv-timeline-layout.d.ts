@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
-import { RouterLocation } from '@vaadin/router';
-import '@components/sv-timeline';
+import '@components/sv-title';
+import '@components/sv-account-mini';
 export declare class SvTimelinePage extends LitElement {
-    location: RouterLocation;
+    static styles: import("lit").CSSResult;
     render(): import("lit").TemplateResult<1>;
 }

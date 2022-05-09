@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators.js';
 import '@components/sv-signin-instance';
 import '@components/sv-title';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
+import { Router } from '@vaadin/router';
 
 @customElement('sv-index-page')
 export class SvindexPage extends LitElement {
@@ -20,6 +21,11 @@ export class SvindexPage extends LitElement {
       }
     `,
   ];
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    if (localStorage.getItem('accessToken')) Router.go('/timeline');
+  }
 
   override render() {
     return html`

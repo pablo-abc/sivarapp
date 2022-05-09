@@ -6,22 +6,19 @@ import { getMe } from '@api/account';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
-import '@shoelace-style/shoelace/dist/components/spinner/spinner.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import '@components/sv-toot-compose';
 import '@components/sv-signout-button';
+import '@components/sv-toot-skeleton';
 
 @customElement('sv-account-mini')
 export class SvAccountMini extends LitElement {
   static styles = [
     css`
-      sl-spinner {
-        font-size: 5rem;
-        margin: 1rem auto;
-        display: block;
-        --track-width: 1rem;
+      sv-toot-skeleton {
+        width: 20rem;
       }
 
       sl-avatar {
@@ -92,7 +89,8 @@ export class SvAccountMini extends LitElement {
   }
 
   override render() {
-    if (this.loading || !this.account) return html`<sl-spinner></sl-spinner>`;
+    if (this.loading || !this.account)
+      return html`<sv-toot-skeleton></sv-toot-skeleton>`;
     return html`
       <sl-card>
         <div slot="header">

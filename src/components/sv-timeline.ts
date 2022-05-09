@@ -4,7 +4,7 @@ import { getTimeline } from '@api/timelines';
 import { Status } from '@types';
 
 import './sv-toot';
-import '@shoelace-style/shoelace/dist/components/spinner/spinner.js';
+import './sv-toot-skeleton';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 
@@ -19,6 +19,10 @@ export class SvTimeline extends LitElement {
 
     * {
       box-sizing: border-box;
+    }
+
+    sv-toot-skeleton {
+      margin-bottom: 1rem;
     }
 
     ul {
@@ -47,16 +51,10 @@ export class SvTimeline extends LitElement {
       color: var(--sl-color-primary-600);
     }
 
-    sl-spinner {
-      font-size: 5rem;
-      display: block;
-      --track-width: 1rem;
-    }
-
     #pagination-footer {
       display: flex;
       justify-content: center;
-      margin: 1rem;
+      margin: 1rem 0;
     }
   `;
 
@@ -129,7 +127,7 @@ export class SvTimeline extends LitElement {
       <div id="pagination-footer">
         ${!this.empty
           ? this.loading
-            ? html`<sl-spinner></sl-spinner>`
+            ? html`<sv-toot-skeleton></sv-toot-skeleton>`
             : html`<sl-button @click=${this.fetchNext}>Fetch more</sl-button>`
           : nothing}
       </div>

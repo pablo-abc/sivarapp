@@ -11,7 +11,7 @@ import '@pages/sv-not-found';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
 
 // Set the base path to the folder you copied Shoelace's assets to
-setBasePath('../');
+setBasePath('/');
 
 const app = document.getElementById('app');
 

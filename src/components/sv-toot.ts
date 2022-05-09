@@ -5,6 +5,9 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
+import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 import '@github/time-elements/dist/relative-time-element.js';
 
 export const tagName = 'sv-toot';
@@ -162,6 +165,26 @@ export class SvToot extends LitElement {
       <sl-card>
         ${this.renderHeader()}
         <div id="content">${this.renderContent()}</div>
+        <div slot="footer">
+          <sl-tooltip content="See replies">
+            <sl-button pill size="small">
+              <sl-icon label="See replies" name="chat-square-text"></sl-icon>
+              ${this.status?.replies_count}
+            </sl-button>
+          </sl-tooltip>
+          <sl-tooltip content="Favourite">
+            <sl-button pill size="small">
+              <sl-icon label="Favourites" name="star"></sl-icon>
+              ${this.status?.favourites_count}
+            </sl-button>
+          </sl-tooltip>
+          <sl-tooltip content="Boost">
+            <sl-button pill size="small">
+              <sl-icon label="Boost" name="arrow-repeat"></sl-icon>
+              ${this.status?.reblogs_count}
+            </sl-button>
+          </sl-tooltip>
+        </div>
       </sl-card>
     `;
   }

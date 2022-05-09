@@ -1,0 +1,138 @@
+export declare type Emoji = {
+    shortcode: string;
+    url: string;
+    static_url: string;
+    visible_in_picker: boolean;
+    category?: string;
+};
+export declare type Field = {
+    name: string;
+    value: string;
+    verified_at?: string;
+};
+export declare type Source = {
+    note: string;
+    fields: Field[];
+    privacy?: 'public' | 'unlisted' | 'private' | 'direct' | null;
+    sensitive?: boolean | null;
+    language?: string | null;
+    follow_requests_count?: number | null;
+};
+export declare type Account = {
+    id: string;
+    username: string;
+    acct: string;
+    url: string;
+    display_name: string;
+    note: string;
+    avatar: string;
+    avatar_static: string;
+    header: string;
+    header_static: string;
+    locked: boolean;
+    emojis: Emoji[];
+    discoverable: boolean;
+    created_at: string;
+    last_status_at: string;
+    statuses_count: number;
+    followers_count: number;
+    following_count: number;
+    moved?: Account;
+    fields?: Field[];
+    bot?: boolean;
+    source?: Source;
+    suspended?: boolean;
+    mute_expires_at?: string;
+};
+export declare type Attachment = {
+    id: string;
+    type: 'unknown' | 'image' | 'gifv' | 'video' | 'audio';
+    url: string;
+    preview_url: string;
+    remote_url?: string;
+    meta?: string;
+    description?: string;
+    blurhash?: string;
+};
+export declare type Application = {
+    name: string;
+    website?: string;
+    vapid_key?: string;
+    client_id: string;
+    client_secret: string;
+};
+export declare type Mention = {
+    id: string;
+    username: string;
+    acct: string;
+    url: string;
+};
+export declare type MastodonHistory = {
+    day: string;
+    uses: string;
+    accounts: string;
+};
+export declare type Tag = {
+    name: string;
+    url: string;
+    history?: MastodonHistory[];
+};
+export declare type Poll = {
+    id: string;
+    expires_at: string;
+    expired: boolean;
+    multiple: boolean;
+    votes_count: number;
+    voters_count: number | null;
+    voted: boolean | null;
+    own_votes: number[] | null;
+    options: string[];
+    emojis: Emoji[];
+};
+export declare type Card = {
+    url: string;
+    title: string;
+    description: string;
+    type: 'link' | 'photo' | 'video' | 'rich';
+    author_name?: string;
+    author_url?: string;
+    provider_name?: string;
+    provider_url?: string;
+    html?: string;
+    width?: number;
+    height?: number;
+    image?: string;
+    embed_url?: string;
+    blurhash?: string;
+};
+export declare type Status = {
+    id: string;
+    uri: string;
+    created_at: string;
+    account: Account;
+    content: string;
+    visibility: 'public' | 'unlisted' | 'private' | 'direct';
+    sensitive: boolean;
+    spoiler_text: string;
+    media_attachments: Attachment[];
+    application: Application;
+    mentions: Mention[];
+    tags: Tag[];
+    emojis: Emoji[];
+    reblogs_count: number;
+    favourites_count: number;
+    replies_count: number;
+    url?: string | null;
+    in_reply_to_id?: string | null;
+    in_reply_to_account_id?: string | null;
+    reblog?: Status | null;
+    poll?: Poll | null;
+    card?: Card | null;
+    language?: string | null;
+    text?: string | null;
+    favourited?: boolean;
+    reblogged?: boolean;
+    muted?: boolean;
+    bookmarked?: boolean;
+    pinned?: boolean;
+};
