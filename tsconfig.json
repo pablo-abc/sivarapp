@@ -22,6 +22,7 @@
     "paths": {
       "@pages/*": ["src/pages/*"],
       "@components/*": ["src/components/*"],
+      "@layouts/*": ["src/layouts/*"],
       "@utils/*": ["src/utils/*"],
       "@api/*": ["src/api/*"],
       "@types": ["src/types.ts"]

@@ -1,4 +1,5 @@
-import { LitElement, html, css } from 'lit';
+import type { Status } from '@types';
+import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
@@ -43,6 +44,10 @@ export class SvToot extends LitElement {
       font-style: italic;
     }
 
+    .header__reblog {
+      opacity: 0.6;
+    }
+
     .info {
       display: flex;
       flex-direction: column;
@@ -53,62 +58,94 @@ export class SvToot extends LitElement {
     }
 
     sl-avatar {
-      --size: 2rem;
       margin-right: 0.5rem;
+    }
+
+    #reblog-avatar {
+      position: relative;
+      margin-right: 0.5rem;
+    }
+
+    #reblog-reblogger {
+      --size: 2rem;
+      position: absolute;
+      right: -0.5rem;
+      bottom: -0.5rem;
     }
   `;
 
-  @property()
-  avatar = '';
-
-  @property()
-  displayName = '';
-
-  @property()
-  accountUrl = '';
-
-  @property()
-  acct = '';
-
-  @property({ type: Boolean })
-  sensitive = false;
-
-  @property()
-  spoilerText = '';
-
-  @property()
-  content = '';
-
-  @property()
-  createdAt = '';
+  @property({ type: Object })
+  status?: Status;
 
   renderContent() {
-    if (this.sensitive) {
+    if (!this.status) return nothing;
+    const status = this.status.reblog || this.status;
+    if (status.sensitive) {
       return html`
-        <sl-details summary=${this.spoilerText}>
-          ${unsafeHTML(this.content)}
+        <sl-details summary=${status.spoiler_text}>
+          ${unsafeHTML(status.content)}
         </sl-details>
       `;
     } else {
-      return html`${unsafeHTML(this.content)}`;
+      return html`${unsafeHTML(status.content)}`;
     }
+  }
+
+  renderAvatar() {
+    if (!this.status) return nothing;
+    const reblog = this.status.reblog;
+    if (reblog) {
+      return html`
+        <div id="reblog-avatar">
+          <sl-avatar
+            id="reblog-author"
+            image=${reblog.account.avatar}
+          ></sl-avatar>
+          <sl-avatar
+            id="reblog-reblogger"
+            image=${this.status.account.avatar}
+          ></sl-avatar>
+        </div>
+      `;
+    } else {
+      return html`<sl-avatar image=${this.status.account.avatar}></sl-avatar>`;
+    }
+  }
+
+  renderHeader() {
+    if (!this.status) return nothing;
+    const reblog = this.status.reblog;
+    const status = reblog || this.status;
+    return html`
+      <div id="header">
+        ${this.renderAvatar()}
+        <div class="info">
+          <a href=${status.account.url} rel="noreferrer">
+            <div class="header__account">
+              <span class="header__name"> ${status.account.display_name} </span>
+              <span class="header__acct">(${status.account.acct})</span>
+            </div>
+          </a>
+          ${reblog
+            ? html`
+                <span class="header__reblog">
+                  Reblogged by
+                  <a href=${this.status.account.url}>
+                    ${this.status.account.display_name}
+                  </a>
+                </span>
+              `
+            : nothing}
+          <relative-time datetime=${status.created_at}></relative-time>
+        </div>
+      </div>
+    `;
   }
 
   override render() {
     return html`
       <div id="card">
-        <div id="header">
-          <sl-avatar image=${this.avatar}></sl-avatar>
-          <div class="info">
-            <a href=${this.accountUrl} rel="noreferrer">
-              <div class="header__account">
-                <span class="header__name"> ${this.displayName} </span>
-                <span class="header__acct">(${this.acct})</span>
-              </div>
-            </a>
-            <relative-time datetime=${this.createdAt}></relative-time>
-          </div>
-        </div>
+        ${this.renderHeader()}
         <div id="content">${this.renderContent()}</div>
       </div>
     `;
