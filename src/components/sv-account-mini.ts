@@ -1,5 +1,6 @@
+import type { SlDialog } from '@shoelace-style/shoelace';
 import { LitElement, html, css } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, state, query } from 'lit/decorators.js';
 import type { Account } from '@types';
 import { getMe } from '@api/account';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
@@ -8,6 +9,8 @@ import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/spinner/spinner.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+import '@components/sv-toot-compose';
 import '@components/sv-signout-button';
 
 @customElement('sv-account-mini')
@@ -60,6 +63,9 @@ export class SvAccountMini extends LitElement {
   @state()
   account?: Account;
 
+  @query('sl-dialog')
+  dialog!: SlDialog;
+
   async fetchUser() {
     try {
       this.loading = true;
@@ -72,6 +78,17 @@ export class SvAccountMini extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
     this.fetchUser();
+  }
+
+  openDialog() {
+    this.dialog.show();
+  }
+
+  handleRequestClose(event: Event) {
+    const detail = (event as CustomEvent<{ source: string }>).detail;
+    if (detail.source === 'overlay' || detail.source === 'keyboard') {
+      event.preventDefault();
+    }
   }
 
   override render() {
@@ -92,12 +109,25 @@ export class SvAccountMini extends LitElement {
         <div>${unsafeHTML(this.account.note)}</div>
         <div slot="footer">
           <sv-signout-button></sv-signout-button>
-          <sl-button variant="primary">
+          <sl-button @click=${this.openDialog} variant="primary">
             <sl-icon slot="prefix" name="pencil"></sl-icon>
             Write
           </sl-button>
         </div>
       </sl-card>
+      <sl-dialog
+        @sl-request-close=${this.handleRequestClose}
+        label="Compose a toot"
+      >
+        <sv-toot-compose></sv-toot-compose>
+        <div slot="footer">
+          <sl-button @click=${() => this.dialog.hide()}>Close</sl-button>
+          <sl-button variant="primary">
+            <sl-icon slot="prefix" name="send"></sl-icon>
+            Toot!
+          </sl-button>
+        </div>
+      </sl-dialog>
     `;
   }
 }

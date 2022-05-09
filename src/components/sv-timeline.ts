@@ -38,13 +38,25 @@ export class SvTimeline extends LitElement {
       display: flex;
       justify-content: center;
       margin: 1rem;
+      position: sticky;
+      top: 1rem;
+      z-index: 1;
+    }
+
+    sl-button[data-selected]::part(base) {
+      color: var(--sl-color-primary-600);
     }
 
     sl-spinner {
       font-size: 5rem;
-      margin: 1rem auto;
       display: block;
       --track-width: 1rem;
+    }
+
+    #pagination-footer {
+      display: flex;
+      justify-content: center;
+      margin: 1rem;
     }
   `;
 
@@ -86,18 +98,21 @@ export class SvTimeline extends LitElement {
   override render() {
     return html`
       <sl-button-group>
-        <sl-button href="/timeline/home" ?disabled=${this.timeline === 'home'}>
+        <sl-button
+          href="/timeline/home"
+          ?data-selected=${this.timeline === 'home'}
+        >
           Home
         </sl-button>
         <sl-button
           href="/timeline/local"
-          ?disabled=${this.timeline === 'local'}
+          ?data-selected=${this.timeline === 'local'}
         >
           Local
         </sl-button>
         <sl-button
           href="/timeline/public"
-          ?disabled=${this.timeline === 'public'}
+          ?data-selected=${this.timeline === 'public'}
         >
           Public
         </sl-button>
@@ -111,13 +126,13 @@ export class SvTimeline extends LitElement {
           `;
         })}
       </ul>
-      ${!this.empty
-        ? this.loading
-          ? html`<sl-spinner></sl-spinner>`
-          : html`<button @click=${this.fetchNext} type="button">
-              Fetch more
-            </button>`
-        : nothing}
+      <div id="pagination-footer">
+        ${!this.empty
+          ? this.loading
+            ? html`<sl-spinner></sl-spinner>`
+            : html`<sl-button @click=${this.fetchNext}>Fetch more</sl-button>`
+          : nothing}
+      </div>
     `;
   }
 }

@@ -71,8 +71,11 @@ export class SvSigninInstance extends LitElement {
     this.#clientSecret = instanceData.client_secret;
     this.#redirectUri = instanceData.redirect_uri;
     localStorage.setItem('currentInstance', instanceName);
+    const redirectUri = encodeURIComponent(
+      'http://localhost:3000/oauth/callback'
+    );
     window.open(
-      `https://${instanceName}/oauth/authorize?client_id=${instanceData.client_id}&scope=read+write+follow&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Fcallback&response_type=code
+      `https://${instanceName}/oauth/authorize?client_id=${instanceData.client_id}&scope=read+write+follow&redirect_uri=${redirectUri}&response_type=code
       `,
       '_blank',
       'popup=1,width=500,height=700'

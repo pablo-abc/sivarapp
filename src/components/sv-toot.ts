@@ -9,6 +9,17 @@ import '@github/time-elements/dist/relative-time-element.js';
 
 export const tagName = 'sv-toot';
 
+function getContent(status: Status, type: 'spoiler' | 'content' = 'content') {
+  const content = type === 'spoiler' ? status.spoiler_text : status.content;
+  const emojis = status.emojis;
+  return emojis.reduce((acc, emoji) => {
+    return acc.replace(
+      `:${emoji.shortcode}:`,
+      `<img class="emoji" src="${emoji.url}" alt="">`
+    );
+  }, content);
+}
+
 @customElement(tagName)
 export class SvToot extends LitElement {
   static styles = [
@@ -67,6 +78,11 @@ export class SvToot extends LitElement {
         right: -0.5rem;
         bottom: -0.5rem;
       }
+
+      .emoji {
+        height: 1rem;
+        width: 1rem;
+      }
     `,
   ];
 
@@ -78,12 +94,15 @@ export class SvToot extends LitElement {
     const status = this.status.reblog || this.status;
     if (status.sensitive) {
       return html`
-        <sl-details summary=${status.spoiler_text}>
-          ${unsafeHTML(status.content)}
+        <sl-details>
+          <span slot="summary">
+            ${unsafeHTML(getContent(status, 'spoiler'))}
+          </span>
+          ${unsafeHTML(getContent(status))}
         </sl-details>
       `;
     } else {
-      return html`${unsafeHTML(status.content)}`;
+      return html`${unsafeHTML(getContent(status))}`;
     }
   }
 
