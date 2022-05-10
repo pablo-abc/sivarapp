@@ -16,6 +16,8 @@ router.setRoutes([
   {
     path: '/',
     async action(_, commands) {
+      if (localStorage.getItem('accessToken'))
+        return commands.redirect('/timeline');
       await import('@pages/sv-index-page');
       return commands.component('sv-index-page');
     },
@@ -36,6 +38,7 @@ router.setRoutes([
   {
     path: '/accounts/:id',
     async action(_, commands) {
+      if (!localStorage.getItem('accessToken')) return commands.redirect('/');
       await import('@layouts/sv-account-layout');
       await import('@pages/sv-account-toots-page');
       return commands.component('sv-account-layout');
@@ -48,6 +51,7 @@ router.setRoutes([
   {
     path: '/statuses/:id',
     async action(_, commands) {
+      if (!localStorage.getItem('accessToken')) return commands.redirect('/');
       await import('@pages/sv-status-page');
       return commands.component('sv-status-page');
     },

@@ -1,16 +1,32 @@
+import type { Status } from '@types';
+import type { FelteSuccessEvent } from '@felte/element';
 import type { SlSwitch, SlSelect } from '@shoelace-style/shoelace';
 import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
+import { createId } from '@utils/id';
+import { toast } from '@utils/toast';
 
+import '@felte/element/felte-form';
+import '@felte/element/felte-field';
 import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/details/details.js';
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 import '@shoelace-style/shoelace/dist/components/switch/switch.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
+import { createStatus } from '@api/status';
+
+type FormValues = {
+  spoilerText?: string;
+  content: string;
+  visibility: string;
+  sensitive: boolean;
+  idempKey: string;
+};
 
 @customElement('sv-toot-compose')
 export class SvTootCompose extends LitElement {
@@ -28,6 +44,7 @@ export class SvTootCompose extends LitElement {
     }
 
     #options-group > *:not(:last-child) {
+      display: block;
       margin-bottom: 2rem;
     }
   `;
@@ -37,6 +54,12 @@ export class SvTootCompose extends LitElement {
 
   @property()
   visibility = 'public';
+
+  @property()
+  idempKey = createId();
+
+  @query('felte-form')
+  form!: HTMLFelteFormElement;
 
   get visibilityIcon() {
     switch (this.visibility) {
@@ -69,56 +92,160 @@ export class SvTootCompose extends LitElement {
     `;
   }
 
+  async #handleSubmit({
+    spoilerText,
+    content,
+    visibility,
+    idempKey,
+    sensitive,
+  }: FormValues) {
+    return createStatus({
+      spoilerText,
+      status: content,
+      visibility,
+      idempotencyKey: idempKey,
+      sensitive,
+    });
+  }
+
+  resetForm() {
+    this.form.reset();
+    this.idempKey = createId();
+  }
+
+  submitForm() {
+    this.form.submit();
+  }
+
+  handleSuccess(event: Event) {
+    const newStatus = (event as FelteSuccessEvent).detail.response as Status;
+    this.dispatchEvent(new Event('sv:form-success'));
+    toast(
+      html`
+        <strong>Toot sent!</strong><br />
+        <span>Your toot was successfully sent</span><br />
+        <sl-button href=${`/statuses/${newStatus.id}`} size="small">
+          Go to toot
+        </sl-button>
+      `,
+      {
+        variant: 'success',
+        icon: 'send-check',
+      }
+    );
+    this.idempKey = createId();
+  }
+
+  handleError(event: Event) {
+    event.preventDefault();
+    toast(
+      html`
+        <strong>Toot failed!</strong><br />
+        There was an error while sending your toot
+      `,
+      {
+        variant: 'danger',
+        icon: 'send-x',
+      }
+    );
+  }
+
   override render() {
     return html`
-      <div>
-        ${when(
-          this.sensitive,
-          () => html`<sl-input label="Content warning:"></sl-input>`
-        )}
-        <sl-textarea resize="auto" label="What's on your mind?"></sl-textarea>
-        <sl-details>
-          <span slot="summary">
-            <span>Options:</span>
-            ${this.renderVisibility()}
-            <sl-tooltip content="Sensitivity">
-              <sl-icon
-                name=${this.sensitive
-                  ? 'exclamation-triangle-fill'
-                  : 'exclamation-triangle'}
-              ></sl-icon>
-            </sl-tooltip>
-          </span>
-          <div id="options-group">
-            <sl-select
-              @sl-change=${this.changeVisibility}
-              value=${this.visibility}
-              label="Visibility:"
-              hoist
+      <felte-form
+        @feltesuccess=${this.handleSuccess}
+        @felteerror=${this.handleError}
+        .configuration=${{
+          onSubmit: this.#handleSubmit as any,
+          transform(values: any) {
+            values.sensitive = values.sensitive === 'true';
+            return values;
+          },
+        }}
+      >
+        <form>
+          <input type="hidden" name="idempKey" value=${this.idempKey} />
+          <div>
+            ${when(
+              this.sensitive,
+              () => html`
+                <felte-field
+                  name="spoilerText"
+                  inputevent="sl-input"
+                  .value=${''}
+                >
+                  <sl-input label="Content warning:"></sl-input>
+                </felte-field>
+              `
+            )}
+            <felte-field
+              name="content"
+              inputevent="sl-input"
+              valueprop="value"
+              .value=${''}
             >
-              <sl-menu-item value="public">
-                <sl-icon name="globe2" slot="prefix"></sl-icon>
-                Public
-              </sl-menu-item>
-              <sl-menu-item value="unlisted">
-                <sl-icon name="unlock" slot="prefix"></sl-icon>
-                Unlisted
-              </sl-menu-item>
-              <sl-menu-item value="private">
-                <sl-icon name="lock" slot="prefix"></sl-icon>
-                Followers only
-              </sl-menu-item>
-              <sl-menu-item value="direct">
-                <sl-icon name="envelope" slot="prefix"></sl-icon>
-                Direct
-              </sl-menu-item>
-            </sl-select>
-            <sl-switch @sl-change=${this.toggleSensitivity}>
-              Sensitive
-            </sl-switch>
+              <sl-textarea
+                resize="auto"
+                label="What's on your mind?"
+              ></sl-textarea>
+            </felte-field>
+            <sl-details>
+              <span slot="summary">
+                <span>Options:</span>
+                ${this.renderVisibility()}
+                <sl-tooltip content="Sensitivity">
+                  <sl-icon
+                    name=${this.sensitive
+                      ? 'exclamation-triangle-fill'
+                      : 'exclamation-triangle'}
+                  ></sl-icon>
+                </sl-tooltip>
+              </span>
+              <div id="options-group">
+                <felte-field
+                  name="visibility"
+                  inputevent="sl-change"
+                  .value=${this.visibility}
+                >
+                  <sl-select
+                    @sl-change=${this.changeVisibility}
+                    value=${this.visibility}
+                    label="Visibility:"
+                    hoist
+                  >
+                    <sl-menu-item value="public">
+                      <sl-icon name="globe2" slot="prefix"></sl-icon>
+                      Public
+                    </sl-menu-item>
+                    <sl-menu-item value="unlisted">
+                      <sl-icon name="unlock" slot="prefix"></sl-icon>
+                      Unlisted
+                    </sl-menu-item>
+                    <sl-menu-item value="private">
+                      <sl-icon name="lock" slot="prefix"></sl-icon>
+                      Followers only
+                    </sl-menu-item>
+                    <sl-menu-item value="direct">
+                      <sl-icon name="envelope" slot="prefix"></sl-icon>
+                      Direct
+                    </sl-menu-item>
+                  </sl-select>
+                </felte-field>
+                <felte-field
+                  name="sensitive"
+                  valueprop="checked"
+                  inputevent="sl-change"
+                  touchonchange
+                >
+                  <sl-switch @sl-change=${this.toggleSensitivity}>
+                    Sensitive
+                  </sl-switch>
+                </felte-field>
+              </div>
+            </sl-details>
           </div>
-        </sl-details>
-      </div>
+        </form>
+      </felte-form>
     `;
   }
 }

@@ -1,4 +1,5 @@
 import type { SlDialog } from '@shoelace-style/shoelace';
+import type { SvTootCompose } from '@components/sv-toot-compose';
 import { LitElement, html, css } from 'lit';
 import { customElement, state, query } from 'lit/decorators.js';
 import type { Account } from '@types';
@@ -56,6 +57,9 @@ export class SvAccountMini extends LitElement {
   @query('sl-dialog')
   dialog!: SlDialog;
 
+  @query('sv-toot-compose')
+  composeForm!: SvTootCompose;
+
   async fetchUser() {
     try {
       this.loading = true;
@@ -72,6 +76,19 @@ export class SvAccountMini extends LitElement {
 
   openDialog() {
     this.dialog.show();
+  }
+
+  closeDialog() {
+    this.dialog.hide();
+    this.composeForm.resetForm();
+  }
+
+  submitForm() {
+    this.composeForm.submitForm();
+  }
+
+  #handleFormSuccess() {
+    this.closeDialog();
   }
 
   handleRequestClose(event: Event) {
@@ -110,10 +127,12 @@ export class SvAccountMini extends LitElement {
         @sl-request-close=${this.handleRequestClose}
         label="Compose a toot"
       >
-        <sv-toot-compose></sv-toot-compose>
+        <sv-toot-compose
+          @sv:form-success=${this.#handleFormSuccess}
+        ></sv-toot-compose>
         <div slot="footer">
-          <sl-button @click=${() => this.dialog.hide()}>Close</sl-button>
-          <sl-button variant="primary">
+          <sl-button @click=${this.closeDialog}>Close</sl-button>
+          <sl-button @click=${this.submitForm} variant="primary">
             <sl-icon slot="prefix" name="send"></sl-icon>
             Toot!
           </sl-button>

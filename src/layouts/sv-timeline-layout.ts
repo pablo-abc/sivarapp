@@ -3,7 +3,6 @@ import { customElement } from 'lit/decorators.js';
 
 import '@components/sv-title';
 import '@components/sv-account-mini';
-import { Router } from '@vaadin/router';
 
 @customElement('sv-timeline-layout')
 export class SvTimelineLayout extends LitElement {
@@ -22,11 +21,6 @@ export class SvTimelineLayout extends LitElement {
       margin-top: 4.5rem;
     }
   `;
-
-  override connectedCallback(): void {
-    super.connectedCallback();
-    if (!localStorage.getItem('accessToken')) Router.go('/');
-  }
 
   override render() {
     return html`

@@ -154,7 +154,8 @@ export class SvSigninInstance extends LitElement {
           <sl-input
             label="Instance:"
             help-text="Leave it empty to log in to 'sivar.cafe'"
-            placeholder="sivar.cafe"
+            placeholder="mastodon.social"
+            name="instance"
             @sl-input=${this.handleInput}
           ></sl-input>
           <sl-button
