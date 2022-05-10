@@ -6,6 +6,7 @@ import { customElement, property } from 'lit/decorators.js';
 import '@felte/element/felte-form';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
+import { toast } from '@utils/toast';
 
 export const tagName = 'sv-signin-instance';
 
@@ -71,12 +72,12 @@ export class SvSigninInstance extends LitElement {
     this.#clientSecret = instanceData.client_secret;
     this.#redirectUri = instanceData.redirect_uri;
     localStorage.setItem('currentInstance', instanceName);
-    const redirectUri = encodeURIComponent(
-      'http://localhost:3000/oauth/callback'
-    );
+    const redirectUri = encodeURIComponent(`${location.origin}/oauth/callback`);
     window.open(
-      `https://${instanceName}/oauth/authorize?client_id=${instanceData.client_id}&scope=read+write+follow&redirect_uri=${redirectUri}&response_type=code
-      `,
+      `${location.origin}/oauth/authorize?authorize_url=${encodeURIComponent(
+        `https://${instanceName}/oauth/authorize?client_id=${instanceData.client_id}&scope=read+write+follow&redirect_uri=${redirectUri}&response_type=code
+`
+      )}`,
       '_blank',
       'popup=1,width=500,height=700'
     );
@@ -101,7 +102,10 @@ export class SvSigninInstance extends LitElement {
       body: formData,
     });
     if (!response.ok) {
-      alert('Failed to sign in');
+      toast('Failed to sign in', {
+        variant: 'danger',
+        icon: 'x-circle',
+      });
       return;
     }
     const json = await response.json();
@@ -111,15 +115,36 @@ export class SvSigninInstance extends LitElement {
     }, 200);
   }
 
+  handleAccessDenied(event: Event) {
+    const detail = (event as CustomEvent<string>).detail;
+    const message =
+      detail === 'access_denied'
+        ? html`
+            <strong>You denied authorization</strong><br />
+            <span>
+              You need to be signed in to an instance in order to use this
+              application.
+            </span>
+          `
+        : html`<strong>An error occurred</strong>`;
+    toast(message, {
+      variant: 'danger',
+      icon: 'x-circle',
+    });
+  }
+
   connectedCallback(): void {
     super.connectedCallback();
     this.handleSignin = this.handleSignin.bind(this);
+    this.handleAccessDenied = this.handleAccessDenied.bind(this);
     document.addEventListener('sv:logged-in', this.handleSignin);
+    document.addEventListener('sv:auth-error', this.handleAccessDenied);
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
     document.removeEventListener('sv:logged-in', this.handleSignin);
+    document.removeEventListener('sv:auth-error', this.handleAccessDenied);
   }
 
   override render() {

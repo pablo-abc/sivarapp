@@ -4,7 +4,7 @@ import { getTimeline } from '@api/timelines';
 import { Status } from '@types';
 
 import './sv-toot';
-import './sv-toot-skeleton';
+import '@components/sv-fetch-toot-button';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 
@@ -126,9 +126,14 @@ export class SvTimeline extends LitElement {
       </ul>
       <div id="pagination-footer">
         ${!this.empty
-          ? this.loading
-            ? html`<sv-toot-skeleton></sv-toot-skeleton>`
-            : html`<sl-button @click=${this.fetchNext}>Fetch more</sl-button>`
+          ? html`
+              <sv-fetch-toot-button
+                ?loading=${this.loading}
+                @sv:fetch-next=${this.fetchNext}
+              >
+                Fetch more
+              </sv-fetch-toot-button>
+            `
           : nothing}
       </div>
     `;

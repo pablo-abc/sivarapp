@@ -41,6 +41,9 @@ export class SvTitle extends LitElement {
   @property()
   instance = localStorage.getItem('currentInstance') || 'sivar.cafe';
 
+  @property()
+  homeLink = '/';
+
   @query('sl-drawer')
   drawer!: SlDrawer;
 
@@ -49,8 +52,10 @@ export class SvTitle extends LitElement {
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
       this.heading = 'Sivares';
+      this.homeLink = '/';
       return;
     }
+    this.homeLink = '/timeline';
     getInstance().then((instance) => {
       this.heading = instance.title;
     });
@@ -74,7 +79,7 @@ export class SvTitle extends LitElement {
           name="list"
           label="Open menu"
         ></sl-icon-button>
-        <h1>${this.heading}</h1>
+        <h1><a href=${this.homeLink}>${this.heading}</a></h1>
       </div>
       <sl-drawer>
         <ul>

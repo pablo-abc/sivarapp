@@ -6,7 +6,7 @@ import '@components/sv-account-mini';
 import { Router } from '@vaadin/router';
 
 @customElement('sv-timeline-layout')
-export class SvTimelinePage extends LitElement {
+export class SvTimelineLayout extends LitElement {
   static styles = css`
     main {
       width: min(97%, 35rem);

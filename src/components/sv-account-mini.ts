@@ -96,7 +96,7 @@ export class SvAccountMini extends LitElement {
         <div slot="header">
           <sl-avatar image=${this.account.avatar}></sl-avatar>
           <div class="info">
-            <a href=${this.account.url} rel="noreferrer">
+            <a href=${`/accounts/${this.account.id}`} rel="noreferrer">
               <div class="header__account">
                 <span class="header__name"> ${this.account.display_name} </span>
                 <span class="header__acct">(${this.account.acct})</span>

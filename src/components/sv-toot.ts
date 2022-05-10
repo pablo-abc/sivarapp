@@ -138,7 +138,7 @@ export class SvToot extends LitElement {
       <div slot="header" id="header">
         ${this.renderAvatar()}
         <div class="info">
-          <a href=${status.account.url} rel="noreferrer">
+          <a href=${`/accounts/${status.account.id}`} rel="noreferrer">
             <div class="header__account">
               <span class="header__name"> ${status.account.display_name} </span>
               <span class="header__acct">(${status.account.acct})</span>
@@ -148,7 +148,7 @@ export class SvToot extends LitElement {
             ? html`
                 <span class="header__reblog">
                   Reblogged by
-                  <a href=${this.status.account.url}>
+                  <a href=${`/accounts/${this.status.account.id}`}>
                     ${this.status.account.display_name}
                   </a>
                 </span>

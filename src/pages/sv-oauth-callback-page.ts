@@ -8,9 +8,16 @@ export class SvOauthCallback extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
     const query = new URLSearchParams(location.search);
-    window.opener.document.dispatchEvent(
-      new CustomEvent('sv:logged-in', { detail: query.get('code') })
-    );
+    const error = query.get('error');
+    if (error) {
+      window.opener.document.dispatchEvent(
+        new CustomEvent('sv:auth-error', { detail: error })
+      );
+    } else {
+      window.opener.document.dispatchEvent(
+        new CustomEvent('sv:logged-in', { detail: query.get('code') })
+      );
+    }
     window.close();
   }
   override render() {
