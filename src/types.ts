@@ -148,3 +148,8 @@ export type Status = {
   bookmarked?: boolean;
   pinned?: boolean;
 };
+
+export type StatusContext = {
+  ancestors: Status[];
+  descendants: Status[];
+};

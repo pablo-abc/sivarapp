@@ -4,6 +4,7 @@ import { customElement, state, query } from 'lit/decorators.js';
 import type { Account } from '@types';
 import { getMe } from '@api/account';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import link from '@styles/link';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -16,6 +17,7 @@ import '@components/sv-toot-skeleton';
 @customElement('sv-account-mini')
 export class SvAccountMini extends LitElement {
   static styles = [
+    link,
     css`
       sv-toot-skeleton {
         width: 20rem;
@@ -32,15 +34,6 @@ export class SvAccountMini extends LitElement {
       .info {
         display: flex;
         flex-direction: column;
-      }
-
-      a {
-        color: var(--sl-color-primary-800, blue);
-        text-decoration: none;
-      }
-
-      a:visited {
-        color: var(--sl-color-primary-800, blue);
       }
 
       sl-card {

@@ -1,4 +1,4 @@
-import { Account } from '@types';
+import type { Account, Status } from '@types';
 import { fetchJSON } from './fetch';
 
 export function getMe(): Promise<Account> {
@@ -11,7 +11,7 @@ export function getMe(): Promise<Account> {
   );
 }
 
-export function getAccount(id: string | number) {
+export function getAccount(id: string | number): Promise<Account> {
   const currentInstance = localStorage.getItem('currentInstance');
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
@@ -32,7 +32,7 @@ export function getAccountStatuses(
     excludeReplies: true,
     onlyMedia: false,
   }
-) {
+): Promise<Status[]> {
   const currentInstance = localStorage.getItem('currentInstance');
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');

@@ -4,6 +4,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Router } from '@vaadin/router';
+import link from '@styles/link';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -30,6 +31,7 @@ function getContent(status: Status, type: 'spoiler' | 'content' = 'content') {
 @customElement('sv-toot')
 export class SvToot extends LitElement {
   static styles = [
+    link,
     css`
       :host {
         display: block;
@@ -43,15 +45,6 @@ export class SvToot extends LitElement {
         display: flex;
         align-items: center;
         justify-content: space-between;
-      }
-
-      a {
-        color: var(--sl-color-primary-800, blue);
-        text-decoration: none;
-      }
-
-      a:visited {
-        color: var(--sl-color-primary-800, blue);
       }
 
       .header__acct {
@@ -228,7 +221,7 @@ export class SvToot extends LitElement {
         <div id="content">${this.renderContent()}</div>
         <div slot="footer">
           <sl-tooltip content="See replies">
-            <sl-button pill size="small">
+            <sl-button href=${`/statuses/${this.status?.id}`} pill size="small">
               <sl-icon label="See replies" name="chat-square-text"></sl-icon>
               ${this.status?.replies_count}
             </sl-button>

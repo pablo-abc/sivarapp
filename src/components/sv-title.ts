@@ -3,6 +3,7 @@ import { getInstance } from '@api/instance';
 import type { PropertyValues } from 'lit';
 import { LitElement, html, css } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import link from '@styles/link';
 
 import '@shoelace-style/shoelace/dist/components/drawer/drawer.js';
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
@@ -10,30 +11,24 @@ import '@components/sv-signout-button';
 
 @customElement('sv-title')
 export class SvTitle extends LitElement {
-  static styles = css`
-    #header {
-      display: flex;
-      align-items: center;
-    }
+  static styles = [
+    link,
+    css`
+      #header {
+        display: flex;
+        align-items: center;
+      }
 
-    sl-icon-button {
-      font-size: 2rem;
-    }
+      sl-icon-button {
+        font-size: 2rem;
+      }
 
-    li {
-      list-style-type: none;
-      margin-top: 1rem;
-    }
-
-    a {
-      color: var(--sl-color-primary-800, blue);
-      text-decoration: none;
-    }
-
-    a:visited {
-      color: var(--sl-color-primary-800, blue);
-    }
-  `;
+      li {
+        list-style-type: none;
+        margin-top: 1rem;
+      }
+    `,
+  ];
 
   @property()
   heading = '';
