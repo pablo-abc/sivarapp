@@ -14,7 +14,9 @@ export async function getStatusContext(id: string): Promise<StatusContext> {
   const currentInstance = localStorage.getItem('currentInstance');
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
-  return fetchJSON(`https://${currentInstance}/api/v1/statuses/${id}/context`);
+  return fetchJSON(`https://${currentInstance}/api/v1/statuses/${id}/context`, {
+    authenticated: true,
+  });
 }
 
 export type CreateStatus = {
@@ -33,7 +35,7 @@ export async function createStatus({
   spoilerText,
   visibility,
   idempotencyKey,
-}: CreateStatus) {
+}: CreateStatus): Promise<Status> {
   const currentInstance = localStorage.getItem('currentInstance');
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
@@ -53,7 +55,7 @@ export async function createStatus({
   });
 }
 
-export function boostStatus(id: string) {
+export function boostStatus(id: string): Promise<Status> {
   const currentInstance = localStorage.getItem('currentInstance');
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
@@ -63,7 +65,7 @@ export function boostStatus(id: string) {
   });
 }
 
-export function unboostStatus(id: string) {
+export function unboostStatus(id: string): Promise<Status> {
   const currentInstance = localStorage.getItem('currentInstance');
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
@@ -76,7 +78,7 @@ export function unboostStatus(id: string) {
   );
 }
 
-export function favouriteStatus(id: string) {
+export function favouriteStatus(id: string): Promise<Status> {
   const currentInstance = localStorage.getItem('currentInstance');
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
@@ -89,7 +91,7 @@ export function favouriteStatus(id: string) {
   );
 }
 
-export function unfavouriteStatus(id: string) {
+export function unfavouriteStatus(id: string): Promise<Status> {
   const currentInstance = localStorage.getItem('currentInstance');
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');

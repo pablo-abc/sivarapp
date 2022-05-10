@@ -1,10 +1,16 @@
 import type { Status } from '@types';
 import type { SlMenuItem } from '@shoelace-style/shoelace';
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Router } from '@vaadin/router';
 import link from '@styles/link';
+import {
+  boostStatus,
+  favouriteStatus,
+  unboostStatus,
+  unfavouriteStatus,
+} from '@api/status';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -103,6 +109,18 @@ export class SvToot extends LitElement {
   @property({ type: Object })
   status?: Status;
 
+  @property({ type: Boolean, reflect: true })
+  favourited = false;
+
+  @state()
+  syncingFavourited = false;
+
+  @property({ type: Boolean, reflect: true })
+  reblogged = false;
+
+  @state()
+  syncingReblogged = false;
+
   async selectOption(event: Event) {
     if (!this.status) return;
     const { item } = (event as CustomEvent<{ item: SlMenuItem }>).detail;
@@ -126,6 +144,40 @@ export class SvToot extends LitElement {
         Router.go(`/statuses/${id}`);
         break;
       }
+    }
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.favourited = this.status?.favourited || false;
+    this.reblogged = this.status?.reblogged || false;
+  }
+
+  async toggleFavourite() {
+    if (this.syncingFavourited || !this.status) return;
+    try {
+      this.syncingFavourited = true;
+      this.status = this.favourited
+        ? await unfavouriteStatus(this.status.id)
+        : await favouriteStatus(this.status.id);
+      this.favourited = this.status.favourited || false;
+      this.reblogged = this.status.reblogged || false;
+    } finally {
+      this.syncingFavourited = false;
+    }
+  }
+
+  async toggleReblogged() {
+    if (this.syncingReblogged || !this.status) return;
+    try {
+      this.syncingReblogged = true;
+      this.status = this.reblogged
+        ? await unboostStatus(this.status.id)
+        : await boostStatus(this.status.id);
+      this.reblogged = this.status.reblogged || false;
+      this.favourited = this.status.favourited || false;
+    } finally {
+      this.syncingReblogged = false;
     }
   }
 
@@ -227,13 +279,30 @@ export class SvToot extends LitElement {
             </sl-button>
           </sl-tooltip>
           <sl-tooltip content="Favourite">
-            <sl-button pill size="small">
-              <sl-icon label="Favourites" name="star"></sl-icon>
+            <sl-button
+              pill
+              size="small"
+              variant=${this.favourited ? 'warning' : 'default'}
+              @click=${this.toggleFavourite}
+              aria-disabled=${this.syncingFavourited}
+              ?loading=${this.syncingFavourited}
+            >
+              <sl-icon
+                label="Favourites"
+                name=${this.favourited ? 'star-fill' : 'star'}
+              ></sl-icon>
               ${this.status?.favourites_count}
             </sl-button>
           </sl-tooltip>
           <sl-tooltip content="Boost">
-            <sl-button pill size="small">
+            <sl-button
+              pill
+              size="small"
+              variant=${this.reblogged ? 'warning' : 'default'}
+              @click=${this.toggleReblogged}
+              aria-disabled=${this.syncingReblogged}
+              ?loading=${this.syncingReblogged}
+            >
               <sl-icon label="Boost" name="arrow-repeat"></sl-icon>
               ${this.status?.reblogs_count}
             </sl-button>

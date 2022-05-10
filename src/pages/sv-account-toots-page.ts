@@ -64,10 +64,17 @@ export class SvAccountTootsPage extends LitElement {
     this.accountId = this.location.params.id as string;
     try {
       this.loading = true;
-      const newToots = await getAccountStatuses(this.accountId, {
-        excludeReplies: this.timeline !== 'with-replies',
-        onlyMedia: this.timeline === 'media',
-        maxId: this.statuses[this.statuses.length - 1]?.id,
+      const newToots = (
+        await getAccountStatuses(this.accountId, {
+          excludeReplies: this.timeline !== 'with-replies',
+          onlyMedia: this.timeline === 'media',
+          maxId: this.statuses[this.statuses.length - 1]?.id,
+        })
+      ).map((toot) => {
+        return {
+          ...toot,
+          reblogged: !!toot.reblog || toot.reblogged,
+        };
       });
       if (!newToots || newToots.length === 0) {
         this.empty = true;
