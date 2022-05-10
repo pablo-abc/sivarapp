@@ -278,6 +278,23 @@ export class SvToot extends LitElement {
               ${this.status?.replies_count}
             </sl-button>
           </sl-tooltip>
+          <sl-tooltip
+            content="Boost"
+            ?disabled=${this.status?.visibility === 'direct'}
+          >
+            <sl-button
+              pill
+              size="small"
+              variant=${this.reblogged ? 'warning' : 'default'}
+              @click=${this.toggleReblogged}
+              aria-disabled=${this.syncingReblogged}
+              ?loading=${this.syncingReblogged}
+              ?disabled=${this.status?.visibility === 'direct'}
+            >
+              <sl-icon label="Boost" name="arrow-repeat"></sl-icon>
+              ${this.status?.reblogs_count}
+            </sl-button>
+          </sl-tooltip>
           <sl-tooltip content="Favourite">
             <sl-button
               pill
@@ -292,19 +309,6 @@ export class SvToot extends LitElement {
                 name=${this.favourited ? 'star-fill' : 'star'}
               ></sl-icon>
               ${this.status?.favourites_count}
-            </sl-button>
-          </sl-tooltip>
-          <sl-tooltip content="Boost">
-            <sl-button
-              pill
-              size="small"
-              variant=${this.reblogged ? 'warning' : 'default'}
-              @click=${this.toggleReblogged}
-              aria-disabled=${this.syncingReblogged}
-              ?loading=${this.syncingReblogged}
-            >
-              <sl-icon label="Boost" name="arrow-repeat"></sl-icon>
-              ${this.status?.reblogs_count}
             </sl-button>
           </sl-tooltip>
         </div>
