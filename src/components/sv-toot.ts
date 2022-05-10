@@ -1,16 +1,20 @@
 import type { Status } from '@types';
+import type { SlMenuItem } from '@shoelace-style/shoelace';
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { Router } from '@vaadin/router';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
+import '@shoelace-style/shoelace/dist/components/menu/menu.js';
+import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 import '@github/time-elements/dist/relative-time-element.js';
-
-export const tagName = 'sv-toot';
 
 function getContent(status: Status, type: 'spoiler' | 'content' = 'content') {
   const content = type === 'spoiler' ? status.spoiler_text : status.content;
@@ -23,7 +27,7 @@ function getContent(status: Status, type: 'spoiler' | 'content' = 'content') {
   }, content);
 }
 
-@customElement(tagName)
+@customElement('sv-toot')
 export class SvToot extends LitElement {
   static styles = [
     css`
@@ -38,6 +42,7 @@ export class SvToot extends LitElement {
       #header {
         display: flex;
         align-items: center;
+        justify-content: space-between;
       }
 
       a {
@@ -66,6 +71,11 @@ export class SvToot extends LitElement {
         opacity: 0.6;
       }
 
+      #user-section {
+        display: flex;
+        align-items: center;
+      }
+
       sl-avatar {
         margin-right: 0.5rem;
       }
@@ -86,11 +96,45 @@ export class SvToot extends LitElement {
         height: 1rem;
         width: 1rem;
       }
+
+      sl-icon-button[label='options'] {
+        font-size: 1.2rem;
+      }
+
+      sl-menu-item::part(base) {
+        font-size: 0.8rem;
+      }
     `,
   ];
 
   @property({ type: Object })
   status?: Status;
+
+  async selectOption(event: Event) {
+    if (!this.status) return;
+    const { item } = (event as CustomEvent<{ item: SlMenuItem }>).detail;
+
+    switch (item.value) {
+      case 'copy-url': {
+        const url = this.status.url || this.status.reblog?.url;
+        if (!url) return;
+        await navigator.clipboard.writeText(url);
+        break;
+      }
+      case 'open-tab': {
+        const url = this.status.url || this.status.reblog?.url;
+        console.log(url);
+        if (!url) return;
+        window.open(url, '_blank', 'noreferrer');
+        break;
+      }
+      case 'open-toot': {
+        const id = this.status.id;
+        Router.go(`/statuses/${id}`);
+        break;
+      }
+    }
+  }
 
   renderContent() {
     if (!this.status) return nothing;
@@ -136,26 +180,43 @@ export class SvToot extends LitElement {
     const status = reblog || this.status;
     return html`
       <div slot="header" id="header">
-        ${this.renderAvatar()}
-        <div class="info">
-          <a href=${`/accounts/${status.account.id}`} rel="noreferrer">
-            <div class="header__account">
-              <span class="header__name"> ${status.account.display_name} </span>
-              <span class="header__acct">(${status.account.acct})</span>
-            </div>
-          </a>
-          ${reblog
-            ? html`
-                <span class="header__reblog">
-                  Reblogged by
-                  <a href=${`/accounts/${this.status.account.id}`}>
-                    ${this.status.account.display_name}
-                  </a>
+        <div id="user-section">
+          ${this.renderAvatar()}
+          <div class="info">
+            <a href=${`/accounts/${status.account.id}`} rel="noreferrer">
+              <div class="header__account">
+                <span class="header__name">
+                  ${status.account.display_name}
                 </span>
-              `
-            : nothing}
-          <relative-time datetime=${status.created_at}></relative-time>
+                <span class="header__acct">(${status.account.acct})</span>
+              </div>
+            </a>
+            ${reblog
+              ? html`
+                  <span class="header__reblog">
+                    Reblogged by
+                    <a href=${`/accounts/${this.status.account.id}`}>
+                      ${this.status.account.display_name}
+                    </a>
+                  </span>
+                `
+              : nothing}
+            <relative-time datetime=${status.created_at}></relative-time>
+          </div>
         </div>
+        <sl-dropdown>
+          <sl-tooltip slot="trigger" content="Options">
+            <sl-icon-button
+              label="options"
+              name="three-dots-vertical"
+            ></sl-icon-button>
+          </sl-tooltip>
+          <sl-menu @sl-select=${this.selectOption}>
+            <sl-menu-item value="open-toot">Open status</sl-menu-item>
+            <sl-menu-item value="copy-url">Copy link URL</sl-menu-item>
+            <sl-menu-item value="open-tab">Open in new tab</sl-menu-item>
+          </sl-menu>
+        </sl-dropdown>
       </div>
     `;
   }
