@@ -39,6 +39,11 @@ export class SvAccountTootsPage extends LitElement {
     sv-fetch-toot-button {
       margin-bottom: 2rem;
     }
+
+    #nothing-text {
+      text-align: center;
+      margin: 2rem;
+    }
   `;
 
   @property()
@@ -119,7 +124,8 @@ export class SvAccountTootsPage extends LitElement {
         })}
       </ul>
       ${when(
-        !this.empty,
+        this.empty,
+        () => html`<p id="nothing-text">There's nothing here :(</p>`,
         () => html`
           <sv-fetch-toot-button
             ?loading=${this.loading}

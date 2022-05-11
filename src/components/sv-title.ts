@@ -1,14 +1,11 @@
-import type { SlDrawer } from '@shoelace-style/shoelace';
 import { getInstance } from '@api/instance';
 import type { PropertyValues } from 'lit';
 import { LitElement, html, css } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import link from '@styles/link';
 
-import '@shoelace-style/shoelace/dist/components/drawer/drawer.js';
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
-import '@components/sv-signout-button';
 import '@components/sv-account-mini';
 
 @customElement('sv-title')
@@ -52,9 +49,6 @@ export class SvTitle extends LitElement {
   @property()
   homeLink = '/';
 
-  @query('sl-drawer')
-  drawer!: SlDrawer;
-
   connectedCallback() {
     super.connectedCallback();
     if (!this.authenticated) {
@@ -74,10 +68,6 @@ export class SvTitle extends LitElement {
     }
   }
 
-  openDrawer() {
-    this.drawer.show();
-  }
-
   override render() {
     return html`
       <div id="header">
@@ -89,19 +79,6 @@ export class SvTitle extends LitElement {
           () => html`<sv-account-mini></sv-account-mini>`
         )}
       </div>
-      <sl-drawer>
-        <ul>
-          <li>
-            <a href="/profile">Profile</a>
-          </li>
-          <li>
-            <a href="/preferences">Preferences</a>
-          </li>
-          <li>
-            <sv-signout-button></sv-signout-button>
-          </li>
-        </ul>
-      </sl-drawer>
     `;
   }
 }
