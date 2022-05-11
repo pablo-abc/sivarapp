@@ -28,6 +28,7 @@ import '@shoelace-style/shoelace/dist/components/menu/menu.js';
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 import '@github/time-elements/dist/relative-time-element.js';
 import '@components/sv-toot-compose';
+import '@components/sv-media';
 
 function getContent(status: Status, type: 'spoiler' | 'content' = 'content') {
   const content = type === 'spoiler' ? status.spoiler_text : status.content;
@@ -303,6 +304,12 @@ export class SvToot extends LitElement {
     `;
   }
 
+  renderMedia() {
+    const media = this.status?.media_attachments;
+    if (!media?.length) return nothing;
+    return html`<sv-media .media=${media}></sv-media>`;
+  }
+
   renderHeader() {
     if (!this.status) return nothing;
     const reblog = this.status.reblog;
@@ -357,6 +364,7 @@ export class SvToot extends LitElement {
       <sl-card>
         ${this.renderHeader()}
         <div id="content">${this.renderContent()}</div>
+        ${this.renderMedia()}
         <div id="toot-footer" slot="footer">
           <div>
             <sl-tooltip content="See replies">
