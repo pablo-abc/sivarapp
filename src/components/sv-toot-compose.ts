@@ -1,6 +1,6 @@
 import type { Status } from '@types';
 import type { FelteSuccessEvent } from '@felte/element';
-import type { SlSwitch, SlSelect, SlDialog } from '@shoelace-style/shoelace';
+import type { SlSwitch, SlSelect, SlDetails } from '@shoelace-style/shoelace';
 import { LitElement, html, css } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
@@ -16,13 +16,13 @@ import '@felte/reporter-element/felte-validation-message';
 import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
-import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/details/details.js';
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 import '@shoelace-style/shoelace/dist/components/switch/switch.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
+import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import { createStatus } from '@api/status';
 
 type FormValues = {
@@ -31,6 +31,7 @@ type FormValues = {
   visibility: string;
   sensitive: boolean;
   idempKey: string;
+  inReplyToId?: string;
 };
 
 const suite = create('toot', (data: FormValues) => {
@@ -73,6 +74,9 @@ export class SvTootCompose extends LitElement {
   @property({ reflect: true, type: Boolean })
   sensitive = false;
 
+  @property()
+  status: string = '';
+
   @property({ reflect: true, type: Boolean })
   submitting = false;
 
@@ -81,6 +85,12 @@ export class SvTootCompose extends LitElement {
 
   @property()
   idempKey = createId();
+
+  @property({ type: Array })
+  defaultMentions: string[] = [];
+
+  @property()
+  inReplyToId?: string;
 
   @query('form')
   form!: HTMLFormElement;
@@ -91,7 +101,10 @@ export class SvTootCompose extends LitElement {
   @query('felte-form')
   felteForm!: HTMLFelteFormElement;
 
-  get visibilityIcon() {
+  @query('sl-details')
+  details!: SlDetails;
+
+  get #visibilityIcon() {
     switch (this.visibility) {
       case 'unlisted':
         return 'unlock';
@@ -117,7 +130,7 @@ export class SvTootCompose extends LitElement {
   #renderVisibility() {
     return html`
       <sl-tooltip content="Visibility">
-        <sl-icon name=${this.visibilityIcon}></sl-icon>
+        <sl-icon name=${this.#visibilityIcon}></sl-icon>
       </sl-tooltip>
     `;
   }
@@ -128,6 +141,7 @@ export class SvTootCompose extends LitElement {
     visibility,
     idempKey,
     sensitive,
+    inReplyToId,
   }: FormValues) {
     return createStatus({
       spoilerText,
@@ -135,6 +149,7 @@ export class SvTootCompose extends LitElement {
       visibility,
       idempotencyKey: idempKey,
       sensitive,
+      inReplyToId,
     });
   }
 
@@ -148,7 +163,7 @@ export class SvTootCompose extends LitElement {
     this.form.requestSubmit();
   }
 
-  handleSuccess(event: Event) {
+  #handleSuccess(event: Event) {
     const newStatus = (event as FelteSuccessEvent).detail.response as Status;
     toast(
       html`
@@ -186,9 +201,15 @@ export class SvTootCompose extends LitElement {
   }
 
   closeDialog() {
-    this.form.reset();
-    this.sensitive = false;
     this.dialog.hide();
+  }
+
+  #handleDialogHide(event: Event) {
+    if (event.target instanceof SlDialog) {
+      this.form.reset();
+      this.sensitive = false;
+      this.details.hide();
+    }
   }
 
   #handleRequestClose(event: Event) {
@@ -218,12 +239,21 @@ export class SvTootCompose extends LitElement {
         <span aria-live="polite" data-part="item"></span>
       </template>
       <felte-form
-        @feltesuccess=${this.handleSuccess}
+        @feltesuccess=${this.#handleSuccess}
         @felteerror=${this.#handleError}
         @issubmittingchange=${this.#updateSubmitting}
       >
         <form>
           <input type="hidden" name="idempKey" value=${this.idempKey} />
+          ${when(
+            this.inReplyToId,
+            () =>
+              html`<input
+                type="hidden"
+                name="inReplyToId"
+                value=${this.inReplyToId!}
+              />`
+          )}
           <div>
             ${when(
               this.sensitive,
@@ -246,7 +276,7 @@ export class SvTootCompose extends LitElement {
               name="content"
               inputevent="sl-input"
               valueprop="value"
-              .value=${''}
+              .value=${`${this.status} `}
             >
               <sl-textarea
                 resize="auto"
@@ -323,9 +353,10 @@ export class SvTootCompose extends LitElement {
     return html`
       <sl-button part="button" @click=${this.openDialog} variant="primary">
         <sl-icon slot="prefix" name="pencil"></sl-icon>
-        Write
+        <slot></slot>
       </sl-button>
       <sl-dialog
+        @sl-after-hide=${this.#handleDialogHide}
         @sl-request-close=${this.#handleRequestClose}
         label="Compose a toot"
       >

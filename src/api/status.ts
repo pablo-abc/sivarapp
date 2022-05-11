@@ -103,3 +103,13 @@ export function unfavouriteStatus(id: string): Promise<Status> {
     }
   );
 }
+
+export function deleteStatus(id: string): Promise<Status> {
+  const currentInstance = localStorage.getItem('currentInstance');
+  if (!currentInstance)
+    throw new Error('Cannot call without being logged in to an instance');
+  return fetchJSON(`https://${currentInstance}/api/v1/statuses/${id}`, {
+    method: 'DELETE',
+    authenticated: true,
+  });
+}

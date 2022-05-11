@@ -1,9 +1,11 @@
 import { getAccountStatuses } from '@api/account';
 import type { Status } from '@types';
+import type { RootState } from '@store/store';
 import { RouterLocation } from '@vaadin/router';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
+import { connect } from '@store/connect';
 
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
@@ -12,12 +14,13 @@ import '@components/sv-toot-skeleton';
 import '@components/sv-fetch-toot-button';
 
 @customElement('sv-account-toots-page')
-export class SvAccountTootsPage extends LitElement {
+export class SvAccountTootsPage extends connect(LitElement) {
   static styles = css`
     li {
       list-style: none;
       width: 90%;
       margin: 0 auto;
+      margin-bottom: 1rem;
     }
 
     ul {
@@ -63,6 +66,15 @@ export class SvAccountTootsPage extends LitElement {
 
   @state()
   statuses: Status[] = [];
+
+  @state()
+  loggedInId?: string;
+
+  override stateChanged(state: RootState) {
+    const currentInstance = localStorage.getItem('currentInstance');
+    if (!currentInstance) return;
+    this.loggedInId = state.account.accounts[currentInstance]?.id;
+  }
 
   async fetchStatuses() {
     this.timeline = (this.location.params.timeline as string) || 'toots';
@@ -120,12 +132,21 @@ export class SvAccountTootsPage extends LitElement {
       </sl-button-group>
       <ul>
         ${this.statuses.map((toot) => {
-          return html`<li><sv-toot .status=${toot}></sv-toot></li>`;
+          const tootAccountId = toot.reblog
+            ? toot.reblog.account.id
+            : toot.account.id;
+          const owned = tootAccountId === this.loggedInId;
+          return html`<li>
+            <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
+          </li>`;
         })}
       </ul>
       ${when(
         this.empty,
-        () => html`<p id="nothing-text">There's nothing here :(</p>`,
+        () =>
+          this.statuses.length === 0
+            ? html`<p id="nothing-text">There's nothing here :(</p>`
+            : nothing,
         () => html`
           <sv-fetch-toot-button
             ?loading=${this.loading}

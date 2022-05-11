@@ -4,6 +4,8 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { ref } from 'lit/directives/ref.js';
+import { connect } from '@store/connect';
+import type { RootState } from '@store/store';
 
 import '@components/sv-title';
 import '@components/sv-toot';
@@ -12,7 +14,7 @@ import '@shoelace-style/shoelace/dist/components/divider/divider.js';
 import { getStatus, getStatusContext } from '@api/status';
 
 @customElement('sv-status-page')
-export class SvStatusPage extends LitElement {
+export class SvStatusPage extends connect(LitElement) {
   static styles = css`
     main {
       display: flex;
@@ -51,6 +53,9 @@ export class SvStatusPage extends LitElement {
   @property({ attribute: false })
   location!: RouterLocation;
 
+  @state()
+  accountId?: string;
+
   async fetchStatus() {
     const id = this.location.params.id as string;
     if (!id) return;
@@ -61,6 +66,12 @@ export class SvStatusPage extends LitElement {
     const id = this.location.params.id as string;
     if (!id) return;
     this.context = await getStatusContext(id);
+  }
+
+  override stateChanged(state: RootState) {
+    const currentInstance = localStorage.getItem('currentInstance');
+    if (!currentInstance) return;
+    this.accountId = state.account.accounts[currentInstance]?.id;
   }
 
   override connectedCallback(): void {
@@ -78,7 +89,15 @@ export class SvStatusPage extends LitElement {
           () => html`
             <ul>
               ${this.context.ancestors.map((toot) => {
-                return html`<li><sv-toot .status=${toot}></sv-toot></li>`;
+                const accountId = toot.reblog
+                  ? toot.reblog.account.id
+                  : toot.account.id;
+                const owned = this.accountId === accountId;
+                return html`
+                  <li>
+                    <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
+                  </li>
+                `;
               })}
             </ul>
             <sl-divider></sl-divider>
@@ -89,6 +108,8 @@ export class SvStatusPage extends LitElement {
           () =>
             html`<sv-toot
               ${ref((el) => el && setTimeout(() => el.scrollIntoView()))}
+              ?owned=${this.accountId ===
+              (this.status!.reblog?.account.id || this.status!.account.id)}
               .status=${this.status}
             ></sv-toot>`,
           () => html`<sv-toot-skeleton></sv-toot-skeleton>`
@@ -96,7 +117,13 @@ export class SvStatusPage extends LitElement {
         <sl-divider></sl-divider>
         <ul>
           ${this.context.descendants.map((toot) => {
-            return html`<li><sv-toot .status=${toot}></sv-toot></li>`;
+            const accountId = toot.reblog
+              ? toot.reblog.account.id
+              : toot.account.id;
+            const owned = this.accountId === accountId;
+            return html`<li>
+              <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
+            </li>`;
           })}
         </ul>
       </main>

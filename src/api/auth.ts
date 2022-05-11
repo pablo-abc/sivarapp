@@ -105,6 +105,8 @@ export async function unauthenticateUser() {
         body: formData,
       });
     }
+  } catch {
+    return;
   } finally {
     localStorage.removeItem('accessToken');
     setTimeout(() => {

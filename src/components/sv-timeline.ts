@@ -1,7 +1,9 @@
+import type { RootState } from '@store/store';
+import type { Status } from '@types';
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, state, property } from 'lit/decorators.js';
 import { getTimeline } from '@api/timelines';
-import { Status } from '@types';
+import { connect } from '@store/connect';
 
 import './sv-toot';
 import '@components/sv-fetch-toot-button';
@@ -12,7 +14,7 @@ import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 export const tagName = 'sv-timeline';
 
 @customElement(tagName)
-export class SvTimeline extends LitElement {
+export class SvTimeline extends connect(LitElement) {
   static styles = css`
     :host {
       display: block;
@@ -82,9 +84,18 @@ export class SvTimeline extends LitElement {
   @property({ reflect: true })
   timeline: 'home' | 'public' | 'local' = 'home';
 
+  @state()
+  accountId?: string;
+
   connectedCallback() {
     super.connectedCallback();
     this.fetchNext();
+  }
+
+  override stateChanged(state: RootState) {
+    const currentInstance = localStorage.getItem('currentInstance');
+    if (!currentInstance) return;
+    this.accountId = state.account.accounts[currentInstance]?.id;
   }
 
   async fetchNext() {
@@ -108,7 +119,7 @@ export class SvTimeline extends LitElement {
   override render() {
     return html`
       <div id="actions">
-        <sv-toot-compose></sv-toot-compose>
+        <sv-toot-compose>Write</sv-toot-compose>
         <sl-button-group>
           <sl-button
             href="/timeline/home"
@@ -132,9 +143,13 @@ export class SvTimeline extends LitElement {
       </div>
       <ul>
         ${this.toots.map((toot) => {
+          const tootAccountId = toot.reblog
+            ? toot.reblog.account.id
+            : toot.account.id;
+          const owned = tootAccountId === this.accountId;
           return html`
             <li>
-              <sv-toot .status=${toot}></sv-toot>
+              <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
             </li>
           `;
         })}

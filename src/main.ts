@@ -1,5 +1,6 @@
 import './styles.css';
 import { Router } from '@vaadin/router';
+import { isAuthenticated } from '@store/store';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
 
 import '@shoelace-style/shoelace/dist/themes/light.css';
@@ -16,8 +17,7 @@ router.setRoutes([
   {
     path: '/',
     async action(_, commands) {
-      if (localStorage.getItem('accessToken'))
-        return commands.redirect('/timeline');
+      if (isAuthenticated()) return commands.redirect('/timeline');
       await import('@pages/sv-index-page');
       return commands.component('sv-index-page');
     },
@@ -25,7 +25,7 @@ router.setRoutes([
   {
     path: '/timeline',
     async action(_, commands) {
-      if (!localStorage.getItem('accessToken')) return commands.redirect('/');
+      if (!isAuthenticated()) return commands.redirect('/');
       await import('@layouts/sv-timeline-layout');
       await import('@pages/sv-timeline-page');
       return commands.component('sv-timeline-layout');
@@ -38,7 +38,7 @@ router.setRoutes([
   {
     path: '/accounts/:id',
     async action(_, commands) {
-      if (!localStorage.getItem('accessToken')) return commands.redirect('/');
+      if (!isAuthenticated()) return commands.redirect('/');
       await import('@layouts/sv-account-layout');
       await import('@pages/sv-account-toots-page');
       return commands.component('sv-account-layout');
@@ -51,7 +51,7 @@ router.setRoutes([
   {
     path: '/statuses/:id',
     async action(_, commands) {
-      if (!localStorage.getItem('accessToken')) return commands.redirect('/');
+      if (!isAuthenticated()) return commands.redirect('/');
       await import('@pages/sv-status-page');
       return commands.component('sv-status-page');
     },

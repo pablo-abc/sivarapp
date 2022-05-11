@@ -16,6 +16,7 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import { fetchMe } from '@store/account';
+import { unauthenticate } from '@store/auth';
 
 @customElement('sv-account-mini')
 export class SvAccountMini extends LitElement {
@@ -102,32 +103,8 @@ export class SvAccountMini extends LitElement {
     `;
   }
 
-  async #handleSignout() {
-    const token = localStorage.getItem('accessToken');
-    const currentInstance =
-      localStorage.getItem('currentInstance') || 'sivar.cafe';
-    const instance = JSON.parse(localStorage.getItem('instances') || '{}')[
-      currentInstance
-    ];
-    if (token) {
-    }
-    const formData = new FormData();
-    formData.append('token', token || '');
-    formData.append('client_id', instance.client_id);
-    formData.append('client_secret', instance.client_secret);
-    try {
-      if (token) {
-        await fetch(`https://${currentInstance}/oauth/revoke`, {
-          method: 'POST',
-          body: formData,
-        });
-      }
-    } finally {
-      localStorage.removeItem('accessToken');
-      setTimeout(() => {
-        Router.go('/');
-      }, 200);
-    }
+  #handleSignout() {
+    this.#store.dispatch(unauthenticate());
   }
 
   #handleSelect(event: Event) {

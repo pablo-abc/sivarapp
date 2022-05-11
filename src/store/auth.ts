@@ -86,10 +86,6 @@ export const authSlice = createSlice({
       }
     );
 
-    builder.addCase(unauthenticate.rejected, (state) => {
-      state.authenticated = false;
-      state.accessToken = undefined;
-    });
     builder.addCase(unauthenticate.fulfilled, (state) => {
       state.authenticated = false;
       state.accessToken = undefined;
