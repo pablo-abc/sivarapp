@@ -2,7 +2,6 @@ import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import '@components/sv-title';
-import '@components/sv-account-mini';
 
 @customElement('sv-timeline-layout')
 export class SvTimelineLayout extends LitElement {
@@ -15,18 +14,12 @@ export class SvTimelineLayout extends LitElement {
       display: flex;
       justify-content: center;
     }
-
-    sv-account-mini {
-      margin-right: 1rem;
-      margin-top: 4.5rem;
-    }
   `;
 
   override render() {
     return html`
       <sv-title></sv-title>
       <div id="container">
-        <sv-account-mini></sv-account-mini>
         <main>
           <slot></slot>
         </main>

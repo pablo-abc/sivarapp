@@ -1,7 +1,9 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import type { SlButton } from '@shoelace-style/shoelace';
+import { LitElement, html, css, type PropertyValues } from 'lit';
+import { customElement, property, query } from 'lit/decorators.js';
 
 import '@components/sv-toot-skeleton';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 
 @customElement('sv-fetch-toot-button')
@@ -17,8 +19,38 @@ export class SvFetchTootButton extends LitElement {
   @property({ type: Boolean })
   loading = false;
 
+  @query('sl-button')
+  button!: SlButton;
+
   fetchNext() {
     this.dispatchEvent(new Event('sv:fetch-next', { bubbles: true }));
+  }
+
+  #observer?: IntersectionObserver;
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.#observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          this.fetchNext();
+        }
+      },
+      {
+        root: null,
+        threshold: 0.5,
+      }
+    );
+  }
+
+  override updated(changed: PropertyValues<this>) {
+    if (changed.has('loading')) {
+      if (this.button) {
+        this.#observer?.observe(this.button);
+      } else {
+        this.#observer?.disconnect();
+      }
+    }
   }
 
   override render() {

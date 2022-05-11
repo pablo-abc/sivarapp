@@ -1,6 +1,6 @@
 import type { Status } from '@types';
 import type { FelteSuccessEvent } from '@felte/element';
-import type { SlSwitch, SlSelect } from '@shoelace-style/shoelace';
+import type { SlSwitch, SlSelect, SlDialog } from '@shoelace-style/shoelace';
 import { LitElement, html, css } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
@@ -12,6 +12,7 @@ import '@felte/element/felte-field';
 import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/details/details.js';
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
@@ -52,6 +53,9 @@ export class SvTootCompose extends LitElement {
   @property({ reflect: true, type: Boolean })
   sensitive = false;
 
+  @property({ reflect: true, type: Boolean })
+  submitting = false;
+
   @property()
   visibility = 'public';
 
@@ -60,6 +64,9 @@ export class SvTootCompose extends LitElement {
 
   @query('felte-form')
   form!: HTMLFelteFormElement;
+
+  @query('sl-dialog')
+  dialog!: SlDialog;
 
   get visibilityIcon() {
     switch (this.visibility) {
@@ -114,12 +121,12 @@ export class SvTootCompose extends LitElement {
   }
 
   submitForm() {
+    if (this.submitting) return;
     this.form.submit();
   }
 
   handleSuccess(event: Event) {
     const newStatus = (event as FelteSuccessEvent).detail.response as Status;
-    this.dispatchEvent(new Event('sv:form-success'));
     toast(
       html`
         <strong>Toot sent!</strong><br />
@@ -133,6 +140,7 @@ export class SvTootCompose extends LitElement {
         icon: 'send-check',
       }
     );
+    this.closeDialog();
     this.idempKey = createId();
   }
 
@@ -150,9 +158,31 @@ export class SvTootCompose extends LitElement {
     );
   }
 
-  override render() {
+  openDialog() {
+    this.dialog.show();
+  }
+
+  closeDialog() {
+    this.dialog.hide();
+    this.resetForm();
+  }
+
+  handleRequestClose(event: Event) {
+    const detail = (event as CustomEvent<{ source: string }>).detail;
+    if (detail.source === 'overlay' || detail.source === 'keyboard') {
+      event.preventDefault();
+    }
+  }
+
+  #updateSubmitting() {
+    console.log(this.form.isSubmitting);
+    this.submitting = this.form.isSubmitting;
+  }
+
+  #renderDialogContent() {
     return html`
       <felte-form
+        @issubmittingchange=${this.#updateSubmitting}
         @feltesuccess=${this.handleSuccess}
         @felteerror=${this.handleError}
         .configuration=${{
@@ -246,6 +276,32 @@ export class SvTootCompose extends LitElement {
           </div>
         </form>
       </felte-form>
+    `;
+  }
+
+  override render() {
+    return html`
+      <sl-button part="button" @click=${this.openDialog} variant="primary">
+        <sl-icon slot="prefix" name="pencil"></sl-icon>
+        Write
+      </sl-button>
+      <sl-dialog
+        @sl-request-close=${this.handleRequestClose}
+        label="Compose a toot"
+      >
+        ${this.#renderDialogContent()}
+        <div slot="footer">
+          <sl-button @click=${this.closeDialog}>Close</sl-button>
+          <sl-button
+            @click=${this.submitForm}
+            variant="primary"
+            ?loading=${this.submitting}
+          >
+            <sl-icon slot="prefix" name="send"></sl-icon>
+            Toot!
+          </sl-button>
+        </div>
+      </sl-dialog>
     `;
   }
 }

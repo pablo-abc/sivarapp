@@ -5,6 +5,7 @@ import { Status } from '@types';
 
 import './sv-toot';
 import '@components/sv-fetch-toot-button';
+import '@components/sv-toot-compose';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 
@@ -41,10 +42,12 @@ export class SvTimeline extends LitElement {
     sl-button-group {
       display: flex;
       justify-content: center;
-      margin: 1rem;
-      position: sticky;
-      top: 1rem;
-      z-index: 1;
+      margin: 1rem 0;
+      box-shadow: -5px 5px 15px 0px rgba(0, 0, 0, 0.3);
+    }
+
+    sv-toot-compose::part(button) {
+      box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.3);
     }
 
     sl-button[data-selected]::part(base) {
@@ -55,6 +58,15 @@ export class SvTimeline extends LitElement {
       display: flex;
       justify-content: center;
       margin: 1rem 0;
+    }
+
+    #actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 1rem;
+      z-index: 1;
     }
   `;
 
@@ -95,26 +107,29 @@ export class SvTimeline extends LitElement {
 
   override render() {
     return html`
-      <sl-button-group>
-        <sl-button
-          href="/timeline/home"
-          ?data-selected=${this.timeline === 'home'}
-        >
-          Home
-        </sl-button>
-        <sl-button
-          href="/timeline/local"
-          ?data-selected=${this.timeline === 'local'}
-        >
-          Local
-        </sl-button>
-        <sl-button
-          href="/timeline/public"
-          ?data-selected=${this.timeline === 'public'}
-        >
-          Public
-        </sl-button>
-      </sl-button-group>
+      <div id="actions">
+        <sv-toot-compose></sv-toot-compose>
+        <sl-button-group>
+          <sl-button
+            href="/timeline/home"
+            ?data-selected=${this.timeline === 'home'}
+          >
+            Home
+          </sl-button>
+          <sl-button
+            href="/timeline/local"
+            ?data-selected=${this.timeline === 'local'}
+          >
+            Local
+          </sl-button>
+          <sl-button
+            href="/timeline/public"
+            ?data-selected=${this.timeline === 'public'}
+          >
+            Public
+          </sl-button>
+        </sl-button-group>
+      </div>
       <ul>
         ${this.toots.map((toot) => {
           return html`

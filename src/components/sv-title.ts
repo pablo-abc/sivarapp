@@ -3,11 +3,13 @@ import { getInstance } from '@api/instance';
 import type { PropertyValues } from 'lit';
 import { LitElement, html, css } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import link from '@styles/link';
 
 import '@shoelace-style/shoelace/dist/components/drawer/drawer.js';
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
 import '@components/sv-signout-button';
+import '@components/sv-account-mini';
 
 @customElement('sv-title')
 export class SvTitle extends LitElement {
@@ -15,6 +17,14 @@ export class SvTitle extends LitElement {
     link,
     css`
       #header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: min(97%, 45rem);
+        margin: 0 auto;
+      }
+
+      #items-left {
         display: flex;
         align-items: center;
       }
@@ -33,6 +43,9 @@ export class SvTitle extends LitElement {
   @property()
   heading = '';
 
+  @property({ type: Boolean })
+  authenticated = !!localStorage.getItem('accessToken');
+
   @property()
   instance = localStorage.getItem('currentInstance') || 'sivar.cafe';
 
@@ -44,8 +57,7 @@ export class SvTitle extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
+    if (!this.authenticated) {
       this.heading = 'Sivares';
       this.homeLink = '/';
       return;
@@ -69,12 +81,13 @@ export class SvTitle extends LitElement {
   override render() {
     return html`
       <div id="header">
-        <sl-icon-button
-          @click=${this.openDrawer}
-          name="list"
-          label="Open menu"
-        ></sl-icon-button>
-        <h1><a href=${this.homeLink}>${this.heading}</a></h1>
+        <div id="items-left">
+          <h1><a href=${this.homeLink}>${this.heading}</a></h1>
+        </div>
+        ${when(
+          this.authenticated,
+          () => html`<sv-account-mini></sv-account-mini>`
+        )}
       </div>
       <sl-drawer>
         <ul>

@@ -1,19 +1,21 @@
-import type { SlDialog } from '@shoelace-style/shoelace';
-import type { SvTootCompose } from '@components/sv-toot-compose';
+import type { SlDialog, SlMenuItem } from '@shoelace-style/shoelace';
 import { LitElement, html, css } from 'lit';
 import { customElement, state, query } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import type { Account } from '@types';
 import { getMe } from '@api/account';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import link from '@styles/link';
+import { Router } from '@vaadin/router';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
-import '@shoelace-style/shoelace/dist/components/card/card.js';
+import '@shoelace-style/shoelace/dist/components/divider/divider.js';
+import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
+import '@shoelace-style/shoelace/dist/components/menu/menu.js';
+import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
-import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-import '@components/sv-toot-compose';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@components/sv-signout-button';
-import '@components/sv-toot-skeleton';
 
 @customElement('sv-account-mini')
 export class SvAccountMini extends LitElement {
@@ -26,10 +28,7 @@ export class SvAccountMini extends LitElement {
 
       sl-avatar {
         margin-right: 0.5rem;
-      }
-
-      .header__acct {
-        font-style: italic;
+        --size: 2rem;
       }
 
       .info {
@@ -37,13 +36,29 @@ export class SvAccountMini extends LitElement {
         flex-direction: column;
       }
 
-      sl-card {
-        max-width: 20rem;
-      }
-
-      [slot='header'] {
+      #header {
         display: flex;
         align-items: center;
+      }
+
+      #skeleton {
+        display: flex;
+        align-items: center;
+        min-width: 15rem;
+        padding: 0.5rem 0;
+      }
+
+      #skeleton sl-skeleton:first-child {
+        display: block;
+        height: 2rem;
+        min-width: 2rem;
+        border-radius: 50%;
+        margin-right: 1rem;
+      }
+
+      #skeleton sl-skeleton:last-child {
+        height: 1rem;
+        width: 100%;
       }
     `,
   ];
@@ -56,9 +71,6 @@ export class SvAccountMini extends LitElement {
 
   @query('sl-dialog')
   dialog!: SlDialog;
-
-  @query('sv-toot-compose')
-  composeForm!: SvTootCompose;
 
   async fetchUser() {
     try {
@@ -74,70 +86,85 @@ export class SvAccountMini extends LitElement {
     this.fetchUser();
   }
 
-  openDialog() {
-    this.dialog.show();
+  #renderSkeleton() {
+    return html`
+      <span id="skeleton">
+        <sl-skeleton></sl-skeleton>
+        <sl-skeleton></sl-skeleton>
+      </span>
+    `;
   }
 
-  closeDialog() {
-    this.dialog.hide();
-    this.composeForm.resetForm();
+  async #handleSignout() {
+    const token = localStorage.getItem('accessToken');
+    const currentInstance =
+      localStorage.getItem('currentInstance') || 'sivar.cafe';
+    const instance = JSON.parse(localStorage.getItem('instances') || '{}')[
+      currentInstance
+    ];
+    if (token) {
+    }
+    const formData = new FormData();
+    formData.append('token', token || '');
+    formData.append('client_id', instance.client_id);
+    formData.append('client_secret', instance.client_secret);
+    try {
+      if (token) {
+        await fetch(`https://${currentInstance}/oauth/revoke`, {
+          method: 'POST',
+          body: formData,
+        });
+      }
+    } finally {
+      localStorage.removeItem('accessToken');
+      setTimeout(() => {
+        Router.go('/');
+      }, 200);
+    }
   }
 
-  submitForm() {
-    this.composeForm.submitForm();
-  }
+  #handleSelect(event: Event) {
+    if (!this.account) return;
+    const { item } = (event as CustomEvent<{ item: SlMenuItem }>).detail;
 
-  #handleFormSuccess() {
-    this.closeDialog();
-  }
-
-  handleRequestClose(event: Event) {
-    const detail = (event as CustomEvent<{ source: string }>).detail;
-    if (detail.source === 'overlay' || detail.source === 'keyboard') {
-      event.preventDefault();
+    switch (item.value) {
+      case 'open-profile':
+        Router.go(`/accounts/${this.account.id}`);
+        break;
+      case 'sign-out':
+        this.#handleSignout();
+        break;
     }
   }
 
   override render() {
-    if (this.loading || !this.account)
-      return html`<sv-toot-skeleton></sv-toot-skeleton>`;
     return html`
-      <sl-card>
-        <div slot="header">
-          <sl-avatar image=${this.account.avatar}></sl-avatar>
-          <div class="info">
-            <a href=${`/accounts/${this.account.id}`} rel="noreferrer">
-              <div class="header__account">
-                <span class="header__name"> ${this.account.display_name} </span>
-                <span class="header__acct">(${this.account.acct})</span>
-              </div>
-            </a>
-          </div>
-        </div>
-        <div>${unsafeHTML(this.account.note)}</div>
-        <div slot="footer">
-          <sv-signout-button></sv-signout-button>
-          <sl-button @click=${this.openDialog} variant="primary">
-            <sl-icon slot="prefix" name="pencil"></sl-icon>
-            Write
-          </sl-button>
-        </div>
-      </sl-card>
-      <sl-dialog
-        @sl-request-close=${this.handleRequestClose}
-        label="Compose a toot"
-      >
-        <sv-toot-compose
-          @sv:form-success=${this.#handleFormSuccess}
-        ></sv-toot-compose>
-        <div slot="footer">
-          <sl-button @click=${this.closeDialog}>Close</sl-button>
-          <sl-button @click=${this.submitForm} variant="primary">
-            <sl-icon slot="prefix" name="send"></sl-icon>
-            Toot!
-          </sl-button>
-        </div>
-      </sl-dialog>
+      <sl-dropdown ?disabled=${this.loading}>
+        <sl-button slot="trigger" size="large" outline caret>
+          ${when(
+            this.loading || !this.account,
+            () => this.#renderSkeleton(),
+            () => html`
+              <sl-avatar
+                slot="prefix"
+                image=${this.account!.avatar}
+              ></sl-avatar>
+              <span id="header">
+                <span class="info">
+                  <span class="header__account">
+                    <span class="header__name"> ${this.account!.acct} </span>
+                  </span>
+                </span>
+              </span>
+            `
+          )}
+        </sl-button>
+        <sl-menu @sl-select=${this.#handleSelect}>
+          <sl-menu-item value="open-profile">Open profile</sl-menu-item>
+          <sl-divider></sl-divider>
+          <sl-menu-item value="sign-out">Sign out</sl-menu-item>
+        </sl-menu>
+      </sl-dropdown>
     `;
   }
 }
