@@ -6,9 +6,13 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { createId } from '@utils/id';
 import { toast } from '@utils/toast';
+import { reporter } from '@felte/reporter-element';
+import { validator } from '@felte/validator-vest';
+import { create, enforce, test } from 'vest';
 
 import '@felte/element/felte-form';
 import '@felte/element/felte-field';
+import '@felte/reporter-element/felte-validation-message';
 import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
@@ -29,13 +33,19 @@ type FormValues = {
   idempKey: string;
 };
 
+const suite = create('toot', (data: FormValues) => {
+  test('spoilerText', 'Must not be empty', () => {
+    if (!data.sensitive) return;
+    enforce(data.spoilerText).isNotEmpty();
+  });
+  test('content', 'Must not be empty', () => {
+    enforce(data.content).isNotEmpty();
+  });
+});
+
 @customElement('sv-toot-compose')
 export class SvTootCompose extends LitElement {
   static styles = css`
-    sl-input {
-      margin-bottom: 1rem;
-    }
-
     sl-details {
       margin-top: 1rem;
     }
@@ -47,6 +57,16 @@ export class SvTootCompose extends LitElement {
     #options-group > *:not(:last-child) {
       display: block;
       margin-bottom: 2rem;
+    }
+
+    [data-part='item'] {
+      color: var(--sl-color-danger-600);
+    }
+
+    felte-validation-message {
+      display: block;
+      height: 2rem;
+      margin-top: 0.5rem;
     }
   `;
 
@@ -62,11 +82,14 @@ export class SvTootCompose extends LitElement {
   @property()
   idempKey = createId();
 
-  @query('felte-form')
-  form!: HTMLFelteFormElement;
+  @query('form')
+  form!: HTMLFormElement;
 
   @query('sl-dialog')
   dialog!: SlDialog;
+
+  @query('felte-form')
+  felteForm!: HTMLFelteFormElement;
 
   get visibilityIcon() {
     switch (this.visibility) {
@@ -122,7 +145,7 @@ export class SvTootCompose extends LitElement {
 
   submitForm() {
     if (this.submitting) return;
-    this.form.submit();
+    this.form.requestSubmit();
   }
 
   handleSuccess(event: Event) {
@@ -163,8 +186,9 @@ export class SvTootCompose extends LitElement {
   }
 
   closeDialog() {
+    this.form.reset();
+    this.sensitive = false;
     this.dialog.hide();
-    this.resetForm();
   }
 
   handleRequestClose(event: Event) {
@@ -175,23 +199,28 @@ export class SvTootCompose extends LitElement {
   }
 
   #updateSubmitting() {
-    console.log(this.form.isSubmitting);
-    this.submitting = this.form.isSubmitting;
+    this.submitting = this.felteForm.isSubmitting;
   }
 
+  override firstUpdated() {
+    this.felteForm.configuration = {
+      onSubmit: this.#handleSubmit,
+      transform(values: any) {
+        if (typeof values.sensitive === 'boolean') return values;
+        return { ...values, sensitive: values.sensitive === 'true' };
+      },
+      extend: [validator({ suite }), reporter],
+    };
+  }
   #renderDialogContent() {
     return html`
+      <template id="vm">
+        <span aria-live="polite" data-part="item"></span>
+      </template>
       <felte-form
-        @issubmittingchange=${this.#updateSubmitting}
         @feltesuccess=${this.handleSuccess}
         @felteerror=${this.handleError}
-        .configuration=${{
-          onSubmit: this.#handleSubmit as any,
-          transform(values: any) {
-            values.sensitive = values.sensitive === 'true';
-            return values;
-          },
-        }}
+        @issubmittingchange=${this.#updateSubmitting}
       >
         <form>
           <input type="hidden" name="idempKey" value=${this.idempKey} />
@@ -206,6 +235,11 @@ export class SvTootCompose extends LitElement {
                 >
                   <sl-input label="Content warning:"></sl-input>
                 </felte-field>
+                <felte-validation-message
+                  for="spoilerText"
+                  max="1"
+                  templateid="vm"
+                ></felte-validation-message>
               `
             )}
             <felte-field
@@ -219,6 +253,11 @@ export class SvTootCompose extends LitElement {
                 label="What's on your mind?"
               ></sl-textarea>
             </felte-field>
+            <felte-validation-message
+              for="content"
+              max="1"
+              templateid="vm"
+            ></felte-validation-message>
             <sl-details>
               <span slot="summary">
                 <span>Options:</span>
@@ -265,6 +304,7 @@ export class SvTootCompose extends LitElement {
                   name="sensitive"
                   valueprop="checked"
                   inputevent="sl-change"
+                  .value=${this.sensitive}
                   touchonchange
                 >
                   <sl-switch @sl-change=${this.toggleSensitivity}>
