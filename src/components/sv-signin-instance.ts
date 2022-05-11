@@ -1,16 +1,15 @@
 import type { SlInput } from '@shoelace-style/shoelace';
-import { Router } from '@vaadin/router';
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { toast } from '@utils/toast';
+import { StoreController } from '@store/controller';
+import { authenticate, authorize } from '@store/auth';
 
 import '@felte/element/felte-form';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
-import { toast } from '@utils/toast';
 
-export const tagName = 'sv-signin-instance';
-
-@customElement(tagName)
+@customElement('sv-signin-instance')
 export class SvSigninInstance extends LitElement {
   static styles = css`
     sl-input {
@@ -21,11 +20,7 @@ export class SvSigninInstance extends LitElement {
   @property()
   instance = 'sivar.cafe';
 
-  #clientId!: string;
-
-  #clientSecret!: string;
-
-  #redirectUri!: string;
+  #store = new StoreController(this);
 
   get instanceName() {
     return this.instance
@@ -37,50 +32,7 @@ export class SvSigninInstance extends LitElement {
   }
 
   async signin() {
-    const instanceName = this.instanceName;
-    const registeredInstances = JSON.parse(
-      localStorage.getItem('instances') || '{}'
-    );
-    let instanceData = registeredInstances[instanceName];
-    if (!instanceData) {
-      const response = await fetch(`https://${instanceName}/api/v1/apps`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          client_name: 'Sivares',
-          redirect_uris: 'http://localhost:3000/oauth/callback',
-          scopes: 'read write follow push',
-          website: 'http://localhost:3000',
-        }),
-      });
-      if (!response.ok) {
-        alert('Failed to create app');
-        return;
-      }
-      instanceData = await response.json();
-      localStorage.setItem(
-        'instances',
-        JSON.stringify({
-          ...registeredInstances,
-          [instanceName]: instanceData,
-        })
-      );
-    }
-    this.#clientId = instanceData.client_id;
-    this.#clientSecret = instanceData.client_secret;
-    this.#redirectUri = instanceData.redirect_uri;
-    localStorage.setItem('currentInstance', instanceName);
-    const redirectUri = encodeURIComponent(`${location.origin}/oauth/callback`);
-    window.open(
-      `${location.origin}/oauth/authorize?authorize_url=${encodeURIComponent(
-        `https://${instanceName}/oauth/authorize?client_id=${instanceData.client_id}&scope=read+write+follow&redirect_uri=${redirectUri}&response_type=code
-`
-      )}`,
-      '_blank',
-      'popup=1,width=500,height=700'
-    );
+    this.#store.dispatch(authorize());
   }
 
   handleInput(event: Event) {
@@ -88,31 +40,18 @@ export class SvSigninInstance extends LitElement {
     this.instance = target.value;
   }
 
-  async handleSignin(event: Event) {
+  handleSignin(event: Event) {
     const code = (event as CustomEvent<string>).detail;
-    const formData = new FormData();
-    formData.append('client_id', this.#clientId);
-    formData.append('client_secret', this.#clientSecret);
-    formData.append('redirect_uri', this.#redirectUri);
-    formData.append('scope', 'read write follow push');
-    formData.append('code', code);
-    formData.append('grant_type', 'authorization_code');
-    const response = await fetch(`https://${this.instanceName}/oauth/token`, {
-      method: 'POST',
-      body: formData,
-    });
-    if (!response.ok) {
-      toast('Failed to sign in', {
-        variant: 'danger',
-        icon: 'x-circle',
-      });
-      return;
-    }
-    const json = await response.json();
-    localStorage.setItem('accessToken', json.access_token);
-    setTimeout(() => {
-      Router.go('/timeline');
-    }, 200);
+    const { clientId, clientSecret, redirectUri } = this.#store.state.auth;
+    if (!clientId || !clientSecret || !redirectUri) return;
+    this.#store.dispatch(
+      authenticate({
+        code,
+        clientId,
+        clientSecret,
+        redirectUri,
+      })
+    );
   }
 
   handleAccessDenied(event: Event) {

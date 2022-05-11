@@ -3,6 +3,8 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import link from '@styles/link';
+import { RouterLocation } from '@vaadin/router';
+import { getAccount } from '@api/account';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -11,8 +13,6 @@ import '@shoelace-style/shoelace/dist/components/badge/badge.js';
 import '@shoelace-style/shoelace/dist/components/divider/divider.js';
 import '@components/sv-title';
 import '@components/sv-toot-skeleton';
-import { RouterLocation } from '@vaadin/router';
-import { getAccount } from '@api/account';
 
 function getNote(status: Account) {
   const content = status.note;

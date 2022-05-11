@@ -153,3 +153,26 @@ export type StatusContext = {
   ancestors: Status[];
   descendants: Status[];
 };
+
+export type Instance = {
+  uri: string;
+  title: string;
+  description: string;
+  short_description: string;
+  email: string;
+  version: string;
+  languages: string[];
+  registrations: boolean;
+  approval_required: boolean;
+  invites_enabled: boolean;
+  urils: {
+    streaming_api: string;
+  };
+  stats: {
+    user_count: number;
+    status_count: number;
+    domain_count: number;
+  };
+  thumbnail?: string | null;
+  contact_account?: Account | null;
+};

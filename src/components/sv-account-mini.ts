@@ -3,9 +3,9 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import type { Account } from '@types';
-import { getMe } from '@api/account';
 import link from '@styles/link';
 import { Router } from '@vaadin/router';
+import { StoreController } from '@store/controller';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/divider/divider.js';
@@ -15,6 +15,7 @@ import '@shoelace-style/shoelace/dist/components/menu/menu.js';
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
+import { fetchMe } from '@store/account';
 
 @customElement('sv-account-mini')
 export class SvAccountMini extends LitElement {
@@ -62,6 +63,22 @@ export class SvAccountMini extends LitElement {
     `,
   ];
 
+  #store = new StoreController(this, {
+    account(state) {
+      const currentInstance =
+        localStorage.getItem('currentInstance') || 'sivar.cafe';
+      return state.account.accounts[currentInstance];
+    },
+    loading(state) {
+      const currentInstance =
+        localStorage.getItem('currentInstance') || 'sivar.cafe';
+      return (
+        !state.account.accounts[currentInstance] &&
+        state.account.state === 'loading'
+      );
+    },
+  });
+
   @state()
   loading = false;
 
@@ -71,18 +88,9 @@ export class SvAccountMini extends LitElement {
   @query('sl-dialog')
   dialog!: SlDialog;
 
-  async fetchUser() {
-    try {
-      this.loading = true;
-      this.account = await getMe();
-    } finally {
-      this.loading = false;
-    }
-  }
-
   connectedCallback(): void {
     super.connectedCallback();
-    this.fetchUser();
+    this.#store.dispatch(fetchMe());
   }
 
   #renderSkeleton() {
