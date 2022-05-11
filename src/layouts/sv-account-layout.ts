@@ -5,12 +5,14 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import link from '@styles/link';
 import { RouterLocation } from '@vaadin/router';
 import { getAccount } from '@api/account';
+import { when } from 'lit/directives/when.js';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
-import '@shoelace-style/shoelace/dist/components/card/card.js';
+import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/badge/badge.js';
 import '@shoelace-style/shoelace/dist/components/divider/divider.js';
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 import '@components/sv-title';
 import '@components/sv-toot-skeleton';
 
@@ -51,6 +53,32 @@ export class SvAccountLayout extends LitElement {
 
       sl-card {
         width: 100%;
+      }
+
+      .field {
+        padding: 0.5rem 0;
+      }
+
+      @media only screen and (min-width: 768px) {
+        .field {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .field dd {
+          margin: 0;
+        }
+      }
+
+      #fields {
+        width: 90%;
+        margin: 0 auto;
+        margin-top: 2rem;
+      }
+
+      #fields sl-icon {
+        color: var(--sl-color-lime-600);
       }
     `,
   ];
@@ -104,6 +132,31 @@ export class SvAccountLayout extends LitElement {
           </div>
         </div>
         <div>${unsafeHTML(getNote(this.account))}</div>
+        ${when(
+          this.account.fields?.length,
+          () => html`
+            <dl id="fields">
+              ${this.account!.fields!.map((field) => {
+                return html`
+                  <div class="field">
+                    <dt>
+                      <strong>${field.name}</strong>
+                      ${when(
+                        field.verified_at,
+                        () => html`
+                          <sl-tooltip content="Verified!">
+                            <sl-icon name="check-circle-fill"></sl-icon>
+                          </sl-tooltip>
+                        `
+                      )}
+                    </dt>
+                    <dd>${unsafeHTML(field.value)}</dd>
+                  </div>
+                `;
+              })}
+            </dl>
+          `
+        )}
       </sl-card>
       <sl-divider></sl-divider>
       <slot></slot>
