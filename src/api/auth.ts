@@ -1,11 +1,10 @@
 import { Router } from '@vaadin/router';
 
-export async function authorizeUser(): Promise<{
+export async function authorizeUser(instanceName: string): Promise<{
   clientId: string;
   clientSecret: string;
   redirectUri: string;
 }> {
-  const instanceName = localStorage.getItem('currentInstance') || 'sivar.cafe';
   const registeredInstances = JSON.parse(
     localStorage.getItem('instances') || '{}'
   );
@@ -17,7 +16,7 @@ export async function authorizeUser(): Promise<{
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        client_name: 'Sivares',
+        client_name: 'Sivarapp',
         redirect_uris: 'http://localhost:3000/oauth/callback',
         scopes: 'read write follow push',
         website: 'http://localhost:3000',

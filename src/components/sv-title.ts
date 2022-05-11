@@ -52,7 +52,7 @@ export class SvTitle extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     if (!this.authenticated) {
-      this.heading = 'Sivares';
+      this.heading = 'Sivarapp';
       this.homeLink = '/';
       return;
     }

@@ -12,9 +12,12 @@ export type AuthState = {
   redirectUri?: string;
 };
 
-export const authorize = createAsyncThunk('auth/authorize', async () => {
-  return authorizeUser();
-});
+export const authorize = createAsyncThunk(
+  'auth/authorize',
+  async (instanceName: string) => {
+    return authorizeUser(instanceName);
+  }
+);
 
 export const authenticate = createAsyncThunk(
   'auth/authenticate',
@@ -83,6 +86,10 @@ export const authSlice = createSlice({
       }
     );
 
+    builder.addCase(unauthenticate.rejected, (state) => {
+      state.authenticated = false;
+      state.accessToken = undefined;
+    });
     builder.addCase(unauthenticate.fulfilled, (state) => {
       state.authenticated = false;
       state.accessToken = undefined;

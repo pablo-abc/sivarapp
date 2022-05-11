@@ -32,7 +32,7 @@ export class SvSigninInstance extends LitElement {
   }
 
   async signin() {
-    this.#store.dispatch(authorize());
+    this.#store.dispatch(authorize(this.instanceName));
   }
 
   handleInput(event: Event) {
