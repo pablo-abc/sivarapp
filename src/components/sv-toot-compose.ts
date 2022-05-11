@@ -104,17 +104,17 @@ export class SvTootCompose extends LitElement {
     }
   }
 
-  toggleSensitivity(event: Event) {
+  #toggleSensitivity(event: Event) {
     const target = event.target as SlSwitch;
     this.sensitive = target.checked;
   }
 
-  changeVisibility(event: Event) {
+  #changeVisibility(event: Event) {
     const target = event.target as SlSelect;
     this.visibility = target.value as string;
   }
 
-  renderVisibility() {
+  #renderVisibility() {
     return html`
       <sl-tooltip content="Visibility">
         <sl-icon name=${this.visibilityIcon}></sl-icon>
@@ -167,7 +167,7 @@ export class SvTootCompose extends LitElement {
     this.idempKey = createId();
   }
 
-  handleError(event: Event) {
+  #handleError(event: Event) {
     event.preventDefault();
     toast(
       html`
@@ -191,7 +191,7 @@ export class SvTootCompose extends LitElement {
     this.dialog.hide();
   }
 
-  handleRequestClose(event: Event) {
+  #handleRequestClose(event: Event) {
     const detail = (event as CustomEvent<{ source: string }>).detail;
     if (detail.source === 'overlay' || detail.source === 'keyboard') {
       event.preventDefault();
@@ -219,7 +219,7 @@ export class SvTootCompose extends LitElement {
       </template>
       <felte-form
         @feltesuccess=${this.handleSuccess}
-        @felteerror=${this.handleError}
+        @felteerror=${this.#handleError}
         @issubmittingchange=${this.#updateSubmitting}
       >
         <form>
@@ -261,7 +261,7 @@ export class SvTootCompose extends LitElement {
             <sl-details>
               <span slot="summary">
                 <span>Options:</span>
-                ${this.renderVisibility()}
+                ${this.#renderVisibility()}
                 <sl-tooltip content="Sensitivity">
                   <sl-icon
                     name=${this.sensitive
@@ -277,7 +277,7 @@ export class SvTootCompose extends LitElement {
                   .value=${this.visibility}
                 >
                   <sl-select
-                    @sl-change=${this.changeVisibility}
+                    @sl-change=${this.#changeVisibility}
                     value=${this.visibility}
                     label="Visibility:"
                     hoist
@@ -307,7 +307,7 @@ export class SvTootCompose extends LitElement {
                   .value=${this.sensitive}
                   touchonchange
                 >
-                  <sl-switch @sl-change=${this.toggleSensitivity}>
+                  <sl-switch @sl-change=${this.#toggleSensitivity}>
                     Sensitive
                   </sl-switch>
                 </felte-field>
@@ -326,7 +326,7 @@ export class SvTootCompose extends LitElement {
         Write
       </sl-button>
       <sl-dialog
-        @sl-request-close=${this.handleRequestClose}
+        @sl-request-close=${this.#handleRequestClose}
         label="Compose a toot"
       >
         ${this.#renderDialogContent()}
