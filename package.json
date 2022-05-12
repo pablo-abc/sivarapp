@@ -6,7 +6,8 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "preview": "serve -s dist"
+    "preview": "serve -s dist",
+    "publish": "pnpm build && gh-pages -d dist"
   },
   "license": "AGPL-3.0",
   "dependencies": {
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^17.0.31",
+    "gh-pages": "^4.0.0",
     "serve": "^13.0.2",
     "typescript": "^4.5.4",
     "vite": "^2.9.7"
