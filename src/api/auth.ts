@@ -42,7 +42,7 @@ export async function authorizeUser(instanceName: string): Promise<{
 `
     )}`,
     '_blank',
-    'popup=1,width=500,height=700'
+    'popup=1,width=500,height=700,opener'
   );
   return {
     clientId: instanceData.client_id,
