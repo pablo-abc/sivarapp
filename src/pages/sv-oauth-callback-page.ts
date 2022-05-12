@@ -1,12 +1,33 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { StoreController } from '@store/controller';
 import { authenticate } from '@store/auth';
 import { toast } from '@utils/toast';
 import { Router } from '@vaadin/router';
 
+import '@shoelace-style/shoelace/dist/components/spinner/spinner';
+
 @customElement('sv-oauth-callback-page')
 export class SvOauthCallback extends LitElement {
+  static styles = css`
+    main {
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    sl-spinner {
+      font-size: 5rem;
+      --track-width: 1rem;
+    }
+  `;
+
   #store = new StoreController(this);
 
   handleSignin(code: string) {
@@ -42,6 +63,13 @@ export class SvOauthCallback extends LitElement {
     }
   }
   override render() {
-    return html`Redirecting`;
+    return html`
+      <main>
+        <div>
+          <sl-spinner></sl-spinner>
+          <p>Signing in...</p>
+        </div>
+      </main>
+    `;
   }
 }

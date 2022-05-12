@@ -26,13 +26,13 @@ export const accountSlice = createSlice({
   name: 'account',
   initialState,
   reducers: {
-    setAccount(state, action: PayloadAction<Account>) {
+    setAccount(state: AccountState, action: PayloadAction<Account>) {
       const account = action.payload;
       const instance = new URL(account.url).hostname;
       state.state = 'fetched';
       state.accounts[instance] = account;
     },
-    clearAccount(state, action: PayloadAction<string>) {
+    clearAccount(state: AccountState, action: PayloadAction<string>) {
       state.state = 'idle';
       state.accounts[action.payload] = undefined;
     },

@@ -4,6 +4,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Application } from '@types';
 import { toast } from '@utils/toast';
 import storage from '@utils/storage';
+import { Router } from '@vaadin/router';
 
 export type AuthState = {
   accessToken?: string;
@@ -51,6 +52,7 @@ export const authSlice = createSlice({
         variant: 'danger',
         icon: 'x-circle',
       });
+      Router.go('/');
     });
     builder.addCase(
       authenticate.fulfilled,
@@ -66,6 +68,7 @@ export const authSlice = createSlice({
         variant: 'danger',
         icon: 'x-circle',
       });
+      Router.go('/');
     });
     builder.addCase(
       authorize.fulfilled,

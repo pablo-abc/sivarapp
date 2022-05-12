@@ -31,15 +31,12 @@ export const instanceSlice = createSlice({
   name: 'instance',
   initialState,
   reducers: {
-    setInstance(state, action: PayloadAction<Instance>) {
+    setInstance(state: InstanceState, action: PayloadAction<Instance>) {
       const instance = action.payload.uri;
       state.state = 'fetched';
-      state.instances[instance] = {
-        uri: instance,
-        title: action.payload.title,
-      };
+      state.instances[instance] = action.payload;
     },
-    clearInstance(state, action: PayloadAction<string>) {
+    clearInstance(state: InstanceState, action: PayloadAction<string>) {
       state.state = 'idle';
       state.instances[action.payload] = undefined;
     },
@@ -53,10 +50,7 @@ export const instanceSlice = createSlice({
       (state, action: PayloadAction<Instance>) => {
         const instance = action.payload;
         state.state = 'fetched';
-        state.instances[instance.uri] = {
-          uri: instance.uri,
-          title: instance.title,
-        };
+        state.instances[instance.uri] = instance;
       }
     );
   },
