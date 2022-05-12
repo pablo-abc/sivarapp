@@ -18,7 +18,7 @@ export class SvTitle extends LitElement {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: min(97%, 45rem);
+        width: min(97%, 55rem);
         margin: 0 auto;
       }
 
