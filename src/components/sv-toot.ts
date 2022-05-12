@@ -1,7 +1,13 @@
 import type { Status } from '@types';
 import type { SlMenuItem, SlDialog } from '@shoelace-style/shoelace';
-import { LitElement, html, css, nothing } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import { LitElement, html, css, nothing, type PropertyValues } from 'lit';
+import {
+  customElement,
+  property,
+  state,
+  query,
+  queryAll,
+} from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Router } from '@vaadin/router';
 import link from '@styles/link';
@@ -122,6 +128,10 @@ export class SvToot extends LitElement {
   @property({ type: Object })
   status?: Status;
 
+  get #status() {
+    return this.status?.reblog || this.status;
+  }
+
   @property({ type: Boolean, reflect: true })
   favourited = false;
 
@@ -146,9 +156,12 @@ export class SvToot extends LitElement {
   @state()
   deleted = false;
 
+  @queryAll('.u-url.mention')
+  mentions!: HTMLAnchorElement[];
+
   get concatMentions() {
-    if (!this.status) return '';
-    const status = this.status.reblog || this.status;
+    if (!this.#status) return '';
+    const status = this.#status;
     return [
       `@${status.account.acct}`,
       ...status.mentions.map((mention) => {
@@ -158,9 +171,7 @@ export class SvToot extends LitElement {
   }
 
   get inReplyToId() {
-    if (!this.status) return '';
-    const status = this.status.reblog || this.status;
-    return status.id;
+    return this.#status?.id || '';
   }
 
   async selectOption(event: Event) {
@@ -200,8 +211,8 @@ export class SvToot extends LitElement {
   }
 
   async deleteToot() {
-    if (this.deleting || !this.status) return;
-    const status = this.status.reblog || this.status;
+    if (this.deleting || !this.#status) return;
+    const status = this.#status;
     try {
       this.deleting = true;
       await deleteStatus(status.id);
@@ -218,6 +229,21 @@ export class SvToot extends LitElement {
       });
     } finally {
       this.deleting = false;
+    }
+  }
+
+  override updated(changed: PropertyValues<this>) {
+    if (changed.has('status') && this.#status) {
+      const status = this.#status;
+      this.mentions.forEach((mention) => {
+        const foundMention = status.mentions.find(
+          (m) => mention.href === m.url
+        );
+        if (!foundMention) return;
+        mention.removeAttribute('rel');
+        mention.removeAttribute('target');
+        mention.href = `/accounts/${foundMention.id}`;
+      });
     }
   }
 
@@ -256,8 +282,8 @@ export class SvToot extends LitElement {
   }
 
   renderContent() {
-    if (!this.status) return nothing;
-    const status = this.status.reblog || this.status;
+    if (!this.#status) return nothing;
+    const status = this.#status;
     if (status.sensitive) {
       return html`
         <sl-details>
