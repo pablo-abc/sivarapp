@@ -17,9 +17,9 @@ export async function authorizeUser(instanceName: string): Promise<{
       },
       body: JSON.stringify({
         client_name: 'Sivarapp',
-        redirect_uris: 'http://localhost:3000/oauth/callback',
+        redirect_uris: `${location.origin}/oauth/callback`,
         scopes: 'read write follow push',
-        website: 'http://localhost:3000',
+        website: 'https://sivar.app',
       }),
     });
     if (!response.ok) {
