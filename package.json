@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "serve -s dist"
   },
+  "license": "AGPL-3.0",
   "dependencies": {
     "@felte/element": "^0.5.0",
     "@felte/reporter-element": "^0.4.1",
