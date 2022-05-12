@@ -8,6 +8,7 @@ import { Router } from '@vaadin/router';
 import { StoreController } from '@store/controller';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
+import '@shoelace-style/shoelace/dist/components/badge/badge.js';
 import '@shoelace-style/shoelace/dist/components/divider/divider.js';
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
@@ -79,6 +80,9 @@ export class SvAccountMini extends LitElement {
         state.account.state === 'loading'
       );
     },
+    unreadNotifications(state) {
+      return state.notification.unreadCount;
+    },
   });
 
   @state()
@@ -89,6 +93,9 @@ export class SvAccountMini extends LitElement {
 
   @query('sl-dialog')
   dialog!: SlDialog;
+
+  @state()
+  unreadNotifications = 0;
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -119,6 +126,9 @@ export class SvAccountMini extends LitElement {
       case 'sign-out':
         this.#handleSignout();
         break;
+      case 'open-notifications':
+        Router.go('/notifications');
+        break;
     }
   }
 
@@ -130,10 +140,8 @@ export class SvAccountMini extends LitElement {
             this.loading || !this.account,
             () => this.#renderSkeleton(),
             () => html`
-              <sl-avatar
-                slot="prefix"
-                image=${this.account!.avatar}
-              ></sl-avatar>
+              <sl-avatar slot="prefix" image=${this.account!.avatar}>
+              </sl-avatar>
               <span id="header">
                 <span class="info">
                   <span class="header__account">
@@ -141,11 +149,28 @@ export class SvAccountMini extends LitElement {
                   </span>
                 </span>
               </span>
+              ${when(
+                this.unreadNotifications,
+                () =>
+                  html`<sl-badge variant="danger" pill pulse>
+                    ${this.unreadNotifications}
+                  </sl-badge>`
+              )}
             `
           )}
         </sl-button>
         <sl-menu @sl-select=${this.#handleSelect}>
           <sl-menu-item value="open-profile">Open profile</sl-menu-item>
+          <sl-menu-item value="open-notifications">
+            Notifications
+            <sl-badge
+              slot="suffix"
+              variant=${this.unreadNotifications ? 'danger' : 'neutral'}
+              pill
+            >
+              ${this.unreadNotifications}
+            </sl-badge>
+          </sl-menu-item>
           <sl-divider></sl-divider>
           <sl-menu-item value="sign-out">Sign out</sl-menu-item>
         </sl-menu>

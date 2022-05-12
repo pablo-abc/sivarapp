@@ -176,3 +176,18 @@ export type Instance = {
   thumbnail?: string | null;
   contact_account?: Account | null;
 };
+
+export type Notification = {
+  id: string;
+  type:
+    | 'follow'
+    | 'follow_request'
+    | 'mention'
+    | 'reblog'
+    | 'favourite'
+    | 'poll'
+    | 'status';
+  created_at: string;
+  account: Account;
+  status: Status;
+};

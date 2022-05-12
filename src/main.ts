@@ -35,6 +35,14 @@ router.setRoutes([
     ],
   },
   {
+    path: '/notifications',
+    async action(_, commands) {
+      if (!isAuthenticated()) return commands.redirect('/');
+      await import('@pages/sv-notifications-page');
+      return commands.component('sv-notifications-page');
+    },
+  },
+  {
     path: '/accounts/:id',
     async action(_, commands) {
       if (!isAuthenticated()) return commands.redirect('/');

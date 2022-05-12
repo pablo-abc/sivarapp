@@ -54,3 +54,14 @@ export function getAccountStatuses(
     authenticated: true,
   });
 }
+
+export function connectNotifications() {
+  const currentInstance = storage.currentInstance;
+  const accessToken = storage.accessToken;
+  if (!currentInstance || !accessToken)
+    throw new Error('Cannot call without being logged in to an instance');
+  const socket = new WebSocket(
+    `wss://${currentInstance}/api/v1/streaming?stream=user&access_token=${accessToken}`
+  );
+  return socket;
+}
