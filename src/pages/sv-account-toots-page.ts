@@ -30,6 +30,7 @@ export class SvAccountTootsPage extends connect(LitElement) {
     sl-button-group {
       display: flex;
       justify-content: center;
+      position: -webkit-sticky;
       position: sticky;
       top: 1rem;
       z-index: 1;

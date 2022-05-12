@@ -66,6 +66,7 @@ export class SvTimeline extends connect(LitElement) {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: -webkit-sticky;
       position: sticky;
       top: 1rem;
       z-index: 1;
