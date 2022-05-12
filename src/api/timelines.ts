@@ -1,4 +1,5 @@
 import { Status } from '@types';
+import storage from '@utils/storage';
 import { fetchJSON } from './fetch';
 
 export async function getTimeline(
@@ -6,7 +7,7 @@ export async function getTimeline(
   params?: Record<string, any>
 ): Promise<Status[]> {
   const timeline = type === 'home' ? 'home' : 'public';
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   const url = new URL(

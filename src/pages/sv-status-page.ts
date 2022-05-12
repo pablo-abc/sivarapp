@@ -12,6 +12,7 @@ import '@components/sv-toot';
 import '@components/sv-toot-skeleton';
 import '@shoelace-style/shoelace/dist/components/divider/divider.js';
 import { getStatus, getStatusContext } from '@api/status';
+import storage from '@utils/storage';
 
 @customElement('sv-status-page')
 export class SvStatusPage extends connect(LitElement) {
@@ -69,7 +70,7 @@ export class SvStatusPage extends connect(LitElement) {
   }
 
   override stateChanged(state: RootState) {
-    const currentInstance = localStorage.getItem('currentInstance');
+    const currentInstance = storage.currentInstance;
     if (!currentInstance) return;
     this.accountId = state.account.accounts[currentInstance]?.id;
   }

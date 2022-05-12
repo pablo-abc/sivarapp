@@ -17,6 +17,7 @@ import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import { fetchMe } from '@store/account';
 import { unauthenticate } from '@store/auth';
+import storage from '@utils/storage';
 
 @customElement('sv-account-mini')
 export class SvAccountMini extends LitElement {
@@ -66,13 +67,13 @@ export class SvAccountMini extends LitElement {
 
   #store = new StoreController(this, {
     account(state) {
-      const currentInstance =
-        localStorage.getItem('currentInstance') || 'sivar.cafe';
+      const currentInstance = storage.currentInstance;
+      if (!currentInstance) return;
       return state.account.accounts[currentInstance];
     },
     loading(state) {
-      const currentInstance =
-        localStorage.getItem('currentInstance') || 'sivar.cafe';
+      const currentInstance = storage.currentInstance;
+      if (!currentInstance) return;
       return (
         !state.account.accounts[currentInstance] &&
         state.account.state === 'loading'

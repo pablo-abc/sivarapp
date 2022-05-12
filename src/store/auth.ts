@@ -1,15 +1,16 @@
 import { authenticateUser, authorizeUser, unauthenticateUser } from '@api/auth';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { Application } from '@types';
 import { toast } from '@utils/toast';
+import storage from '@utils/storage';
 
 export type AuthState = {
   accessToken?: string;
   authorizationCode?: string;
   authenticated: boolean;
-  clientId?: string;
-  clientSecret?: string;
-  redirectUri?: string;
+  instanceName?: string;
+  application?: Application;
 };
 
 export const authorize = createAsyncThunk(
@@ -21,13 +22,8 @@ export const authorize = createAsyncThunk(
 
 export const authenticate = createAsyncThunk(
   'auth/authenticate',
-  async (args: {
-    code: string;
-    clientId: string;
-    clientSecret: string;
-    redirectUri: string;
-  }) => {
-    return authenticateUser(args);
+  async (code: string) => {
+    return authenticateUser(code);
   }
 );
 
@@ -39,8 +35,10 @@ export const unauthenticate = createAsyncThunk(
 );
 
 const initialState: AuthState = {
-  accessToken: localStorage.getItem('accessToken') || undefined,
-  authenticated: !!localStorage.getItem('accessToken'),
+  accessToken: storage.accessToken,
+  authenticated: !!storage.accessToken,
+  instanceName: storage.currentInstance,
+  application: storage.currentApp,
 };
 
 export const authSlice = createSlice({
@@ -71,18 +69,9 @@ export const authSlice = createSlice({
     });
     builder.addCase(
       authorize.fulfilled,
-      (
-        _,
-        action: PayloadAction<{
-          clientId: string;
-          clientSecret: string;
-          redirectUri: string;
-        }>
-      ) => {
-        return {
-          ...action.payload,
-          authenticated: false,
-        };
+      (state, action: PayloadAction<Application>) => {
+        state.application = action.payload;
+        state.authenticated = false;
       }
     );
 

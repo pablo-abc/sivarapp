@@ -1,8 +1,9 @@
 import type { Status, StatusContext } from '@types';
+import storage from '@utils/storage';
 import { fetchJSON } from './fetch';
 
 export async function getStatus(id: string): Promise<Status> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(`https://${currentInstance}/api/v1/statuses/${id}`, {
@@ -11,7 +12,7 @@ export async function getStatus(id: string): Promise<Status> {
 }
 
 export async function getStatusContext(id: string): Promise<StatusContext> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(`https://${currentInstance}/api/v1/statuses/${id}/context`, {
@@ -36,7 +37,7 @@ export async function createStatus({
   visibility,
   idempotencyKey,
 }: CreateStatus): Promise<Status> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(`https://${currentInstance}/api/v1/statuses`, {
@@ -56,7 +57,7 @@ export async function createStatus({
 }
 
 export function boostStatus(id: string): Promise<Status> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(`https://${currentInstance}/api/v1/statuses/${id}/reblog`, {
@@ -66,7 +67,7 @@ export function boostStatus(id: string): Promise<Status> {
 }
 
 export function unboostStatus(id: string): Promise<Status> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(
@@ -79,7 +80,7 @@ export function unboostStatus(id: string): Promise<Status> {
 }
 
 export function favouriteStatus(id: string): Promise<Status> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(
@@ -92,7 +93,7 @@ export function favouriteStatus(id: string): Promise<Status> {
 }
 
 export function unfavouriteStatus(id: string): Promise<Status> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(
@@ -105,7 +106,7 @@ export function unfavouriteStatus(id: string): Promise<Status> {
 }
 
 export function deleteStatus(id: string): Promise<Status> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(`https://${currentInstance}/api/v1/statuses/${id}`, {

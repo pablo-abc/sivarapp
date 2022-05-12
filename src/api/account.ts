@@ -1,8 +1,9 @@
 import type { Account, Status } from '@types';
+import storage from '@utils/storage';
 import { fetchJSON } from './fetch';
 
 export function getMe(): Promise<Account> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(
@@ -12,7 +13,7 @@ export function getMe(): Promise<Account> {
 }
 
 export function getAccount(id: string | number): Promise<Account> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   return fetchJSON(`https://${currentInstance}/api/v1/accounts/${id}`, {
@@ -33,7 +34,7 @@ export function getAccountStatuses(
     onlyMedia: false,
   }
 ): Promise<Status[]> {
-  const currentInstance = localStorage.getItem('currentInstance');
+  const currentInstance = storage.currentInstance;
   if (!currentInstance)
     throw new Error('Cannot call without being logged in to an instance');
   const url = new URL(

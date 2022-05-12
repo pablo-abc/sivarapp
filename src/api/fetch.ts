@@ -1,3 +1,5 @@
+import storage from '@utils/storage';
+
 export type FetchOptions = RequestInit & {
   json?: Record<string, any> | Array<any>;
   authenticated?: boolean;
@@ -12,7 +14,7 @@ export async function fetchJSON(url: string, options: FetchOptions = {}) {
     'Content-Type': 'application/json',
   };
   if (options.authenticated) {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = storage.accessToken;
     if (!accessToken)
       throw new Error('Cannot be called without being logged in');
     options.headers = {

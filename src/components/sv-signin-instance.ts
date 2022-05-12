@@ -1,9 +1,8 @@
 import type { SlInput } from '@shoelace-style/shoelace';
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { toast } from '@utils/toast';
 import { StoreController } from '@store/controller';
-import { authenticate, authorize } from '@store/auth';
+import { authorize } from '@store/auth';
 
 import '@felte/element/felte-form';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
@@ -38,52 +37,6 @@ export class SvSigninInstance extends LitElement {
   handleInput(event: Event) {
     const target = event.target as SlInput;
     this.instance = target.value;
-  }
-
-  handleSignin(event: Event) {
-    const code = (event as CustomEvent<string>).detail;
-    const { clientId, clientSecret, redirectUri } = this.#store.state.auth;
-    if (!clientId || !clientSecret || !redirectUri) return;
-    this.#store.dispatch(
-      authenticate({
-        code,
-        clientId,
-        clientSecret,
-        redirectUri,
-      })
-    );
-  }
-
-  handleAccessDenied(event: Event) {
-    const detail = (event as CustomEvent<string>).detail;
-    const message =
-      detail === 'access_denied'
-        ? html`
-            <strong>You denied authorization</strong><br />
-            <span>
-              You need to be signed in to an instance in order to use this
-              application.
-            </span>
-          `
-        : html`<strong>An error occurred</strong>`;
-    toast(message, {
-      variant: 'danger',
-      icon: 'x-circle',
-    });
-  }
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.handleSignin = this.handleSignin.bind(this);
-    this.handleAccessDenied = this.handleAccessDenied.bind(this);
-    document.addEventListener('sv:logged-in', this.handleSignin);
-    document.addEventListener('sv:auth-error', this.handleAccessDenied);
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    document.removeEventListener('sv:logged-in', this.handleSignin);
-    document.removeEventListener('sv:auth-error', this.handleAccessDenied);
   }
 
   override render() {

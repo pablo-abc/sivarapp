@@ -7,6 +7,7 @@ import link from '@styles/link';
 
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
 import '@components/sv-account-mini';
+import storage from '@utils/storage';
 
 @customElement('sv-title')
 export class SvTitle extends LitElement {
@@ -41,10 +42,10 @@ export class SvTitle extends LitElement {
   heading = '';
 
   @property({ type: Boolean })
-  authenticated = !!localStorage.getItem('accessToken');
+  authenticated = !!storage.accessToken;
 
   @property()
-  instance = localStorage.getItem('currentInstance') || 'sivar.cafe';
+  instance = storage.currentInstance;
 
   @property()
   homeLink = '/';

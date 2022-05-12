@@ -1,14 +1,11 @@
+import type { Application } from '@types';
 import { Router } from '@vaadin/router';
+import storage from '@utils/storage';
 
-export async function authorizeUser(instanceName: string): Promise<{
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
-}> {
-  const registeredInstances = JSON.parse(
-    localStorage.getItem('instances') || '{}'
-  );
-  let instanceData = registeredInstances[instanceName];
+export async function authorizeUser(
+  instanceName: string
+): Promise<Application> {
+  let instanceData = storage.apps[instanceName];
   if (!instanceData) {
     const response = await fetch(`https://${instanceName}/api/v1/apps`, {
       method: 'POST',
@@ -25,44 +22,27 @@ export async function authorizeUser(instanceName: string): Promise<{
     if (!response.ok) {
       throw new Error('authorize_error');
     }
-    instanceData = await response.json();
-    localStorage.setItem(
-      'instances',
-      JSON.stringify({
-        ...registeredInstances,
-        [instanceName]: instanceData,
-      })
-    );
+    instanceData = (await response.json()) as Application;
+    storage.apps = {
+      ...storage.apps,
+      [instanceName]: instanceData,
+    };
   }
-  localStorage.setItem('currentInstance', instanceName);
+  storage.currentInstance = instanceName;
   const encodedUri = encodeURIComponent(`${location.origin}/oauth/callback`);
-  window.open(
-    `${location.origin}/oauth/authorize?authorize_url=${encodeURIComponent(
-      `https://${instanceName}/oauth/authorize?client_id=${instanceData.client_id}&scope=read+write+follow&redirect_uri=${encodedUri}&response_type=code
-`
-    )}`,
-    '_blank',
-    'popup=1,width=500,height=700,opener'
-  );
-  return {
-    clientId: instanceData.client_id,
-    clientSecret: instanceData.client_secret,
-    redirectUri: instanceData.redirect_uri,
-  };
+  location.href = `https://${instanceName}/oauth/authorize?client_id=${instanceData.client_id}&scope=read+write+follow&redirect_uri=${encodedUri}&response_type=code`;
+  return instanceData;
 }
 
-export async function authenticateUser({
-  clientId,
-  clientSecret,
-  redirectUri,
-  code,
-}: {
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
-  code: string;
-}): Promise<string> {
-  const instanceName = localStorage.getItem('currentInstance') || 'sivar.cafe';
+export async function authenticateUser(code: string): Promise<string> {
+  const instanceData = storage.currentApp;
+  const instanceName = storage.currentInstance;
+  if (!instanceData || !instanceName) {
+    throw new Error('authorization_error');
+  }
+  const { client_id: clientId, client_secret: clientSecret } = instanceData;
+
+  const redirectUri = `${location.origin}/oauth/callback`;
   const formData = new FormData();
   formData.append('client_id', clientId);
   formData.append('client_secret', clientSecret);
@@ -78,7 +58,7 @@ export async function authenticateUser({
     throw new Error('authenticate_error');
   }
   const json = await response.json();
-  localStorage.setItem('accessToken', json.access_token);
+  storage.accessToken = json.access_token;
   setTimeout(() => {
     Router.go('/timeline');
   }, 200);
@@ -86,20 +66,16 @@ export async function authenticateUser({
 }
 
 export async function unauthenticateUser() {
-  const token = localStorage.getItem('accessToken');
-  const currentInstance =
-    localStorage.getItem('currentInstance') || 'sivar.cafe';
-  const instance = JSON.parse(localStorage.getItem('instances') || '{}')[
-    currentInstance
-  ];
-  if (token) {
-  }
-  const formData = new FormData();
-  formData.append('token', token || '');
-  formData.append('client_id', instance.client_id);
-  formData.append('client_secret', instance.client_secret);
+  const token = storage.accessToken;
   try {
     if (token) {
+      const instance = storage.currentApp;
+      const currentInstance = storage.currentInstance;
+      if (!instance || !currentInstance) return;
+      const formData = new FormData();
+      formData.append('token', token || '');
+      formData.append('client_id', instance.client_id);
+      formData.append('client_secret', instance.client_secret);
       await fetch(`https://${currentInstance}/oauth/revoke`, {
         method: 'POST',
         body: formData,
@@ -108,7 +84,7 @@ export async function unauthenticateUser() {
   } catch {
     return;
   } finally {
-    localStorage.removeItem('accessToken');
+    storage.accessToken = undefined;
     setTimeout(() => {
       Router.go('/');
     }, 200);

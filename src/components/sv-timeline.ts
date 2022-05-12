@@ -10,6 +10,7 @@ import '@components/sv-fetch-toot-button';
 import '@components/sv-toot-compose';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
+import storage from '@utils/storage';
 
 export const tagName = 'sv-timeline';
 
@@ -94,7 +95,7 @@ export class SvTimeline extends connect(LitElement) {
   }
 
   override stateChanged(state: RootState) {
-    const currentInstance = localStorage.getItem('currentInstance');
+    const currentInstance = storage.currentInstance;
     if (!currentInstance) return;
     this.accountId = state.account.accounts[currentInstance]?.id;
   }

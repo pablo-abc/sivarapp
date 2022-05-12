@@ -12,6 +12,7 @@ import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 import '@components/sv-toot';
 import '@components/sv-toot-skeleton';
 import '@components/sv-fetch-toot-button';
+import storage from '@utils/storage';
 
 @customElement('sv-account-toots-page')
 export class SvAccountTootsPage extends connect(LitElement) {
@@ -72,7 +73,7 @@ export class SvAccountTootsPage extends connect(LitElement) {
   loggedInId?: string;
 
   override stateChanged(state: RootState) {
-    const currentInstance = localStorage.getItem('currentInstance');
+    const currentInstance = storage.currentInstance;
     if (!currentInstance) return;
     this.loggedInId = state.account.accounts[currentInstance]?.id;
   }
