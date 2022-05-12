@@ -22,10 +22,11 @@ export class SvMediaPreview extends LitElement {
       padding: 0;
       background: transparent;
       border: none;
+      width: 100%;
     }
 
     button img {
-      max-width: 100%;
+      width: 100%;
       object-fit: cover;
       height: 20rem;
     }

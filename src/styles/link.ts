@@ -9,4 +9,12 @@ export default css`
   a:visited {
     color: var(--sl-color-primary-800, blue);
   }
+
+  a .invisible {
+    display: none;
+  }
+
+  a > .invisible ~ span::after {
+    content: '\u2026';
+  }
 `;
