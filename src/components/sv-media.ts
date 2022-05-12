@@ -1,9 +1,8 @@
 import type { Attachment } from '@types';
-import { LitElement, html, css, nothing } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-
+import '@components/sv-media-preview';
 @customElement('sv-media')
 export class SvMedia extends LitElement {
   static styles = css`
@@ -16,27 +15,17 @@ export class SvMedia extends LitElement {
       box-sizing: border-box;
     }
 
-    #media button {
+    #media sv-media-preview {
       margin: 0 auto;
       min-width: 90%;
-      cursor: pointer;
-      padding: 0;
-      background: transparent;
-      border: none;
     }
 
-    #media button:last-child {
+    #media sv-media-preview:last-child {
       min-width: 100%;
     }
 
-    #media button:not(:last-child) {
+    #media sv-media-preview:not(:last-child) {
       margin-right: 1rem;
-    }
-
-    #media img {
-      max-width: 100%;
-      object-fit: cover;
-      height: 20rem;
     }
 
     #media {
@@ -48,22 +37,11 @@ export class SvMedia extends LitElement {
   @property({ type: Array })
   media: Attachment[] = [];
 
-  #renderAttachment(att: Attachment) {
-    if (att.type === 'image') {
-      return html`
-        <button>
-          <img src=${att.preview_url} alt=${att.description || ''} />
-        </button>
-      `;
-    }
-    return nothing;
-  }
-
   override render() {
     return html`
       <div id="media">
         ${this.media.map((att) => {
-          return this.#renderAttachment(att);
+          return html`<sv-media-preview .attachment=${att}></sv-media-preview>`;
         })}
       </div>
     `;
