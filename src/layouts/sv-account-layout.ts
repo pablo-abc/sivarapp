@@ -38,6 +38,7 @@ export class SvAccountLayout extends LitElement {
       [slot='header'] {
         display: flex;
         align-items: center;
+        line-height: 1.5rem;
       }
 
       sl-avatar {
@@ -114,6 +115,7 @@ export class SvAccountLayout extends LitElement {
                     renderEmoji(this.account.display_name, this.account.emojis)
                   )}
                 </span>
+                <br />
                 <span class="header__acct">(${this.account.acct})</span>
               </div>
             </a>

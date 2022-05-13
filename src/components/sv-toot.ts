@@ -21,6 +21,7 @@ import {
 } from '@api/status';
 import { toast } from '@utils/toast';
 import { renderEmoji } from '@utils/emoji';
+import { truncate } from '@utils/truncate';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -351,7 +352,9 @@ export class SvToot extends LitElement {
                     )
                   )}
                 </span>
-                <span class="header__acct">(${status.account.acct})</span>
+                <span class="header__acct">
+                  (${truncate(status.account.acct)})
+                </span>
               </div>
             </a>
             ${reblog

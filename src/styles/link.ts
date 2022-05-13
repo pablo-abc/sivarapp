@@ -10,7 +10,7 @@ export default css`
     color: var(--sl-color-primary-800, blue);
   }
 
-  a .invisible {
+  .invisible {
     clip: rect(0 0 0 0);
     height: auto;
     margin: 0;
@@ -21,7 +21,7 @@ export default css`
     white-space: nowrap;
   }
 
-  a > .ellipsis::after {
+  .ellipsis::after {
     content: '\u2026';
   }
 `;

@@ -31,6 +31,7 @@ export class SvMedia extends LitElement {
     #media {
       display: flex;
       overflow-x: auto;
+      align-items: center;
     }
   `;
 
