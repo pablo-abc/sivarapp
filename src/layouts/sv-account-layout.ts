@@ -6,6 +6,8 @@ import link from '@styles/link';
 import { RouterLocation } from '@vaadin/router';
 import { getAccount } from '@api/account';
 import { when } from 'lit/directives/when.js';
+import emoji from '@styles/emoji';
+import { renderEmoji } from '@utils/emoji';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -19,24 +21,15 @@ import '@components/sv-toot-skeleton';
 function getNote(status: Account) {
   const content = status.note;
   const emojis = status.emojis;
-  return emojis.reduce((acc, emoji) => {
-    return acc.replace(
-      `:${emoji.shortcode}:`,
-      `<img class="emoji" src="${emoji.url}" alt="">`
-    );
-  }, content);
+  return renderEmoji(content, emojis);
 }
 
 @customElement('sv-account-layout')
 export class SvAccountLayout extends LitElement {
   static styles = [
     link,
+    emoji,
     css`
-      .emoji {
-        height: 1rem;
-        width: 1rem;
-      }
-
       main {
         width: min(97%, 35rem);
         margin: 0 auto;
@@ -116,7 +109,11 @@ export class SvAccountLayout extends LitElement {
           <div class="info">
             <a href=${this.account.url} rel="noreferrer">
               <div class="header__account">
-                <span class="header__name"> ${this.account.display_name} </span>
+                <span class="header__name">
+                  ${unsafeHTML(
+                    renderEmoji(this.account.display_name, this.account.emojis)
+                  )}
+                </span>
                 <span class="header__acct">(${this.account.acct})</span>
               </div>
             </a>
