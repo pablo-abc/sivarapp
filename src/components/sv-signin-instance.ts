@@ -2,9 +2,11 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { authorize } from '@store/auth';
 import { store } from '@store/store';
+import { reporter } from '@felte/reporter-element';
 
 import '@felte/element/felte-form';
 import '@felte/element/felte-field';
+import '@felte/reporter-element/felte-validation-message';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/spinner/spinner.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
@@ -13,16 +15,19 @@ import '@shoelace-style/shoelace/dist/components/input/input.js';
 @customElement('sv-signin-instance')
 export class SvSigninInstance extends LitElement {
   static styles = css`
-    sl-input {
-      margin-bottom: 1rem;
-    }
-
     .error {
       color: var(--sl-color-danger-600);
     }
 
     .success {
       color: var(--sl-color-success-600);
+    }
+
+    felte-validation-message {
+      display: block;
+      height: 1rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
     }
   `;
 
@@ -81,6 +86,7 @@ export class SvSigninInstance extends LitElement {
           instance: this.#getInstanceName(values.instance),
         };
       },
+      extend: reporter,
       debounced: {
         timeout: 1000,
         validate: async (values: any) => {
@@ -95,19 +101,19 @@ export class SvSigninInstance extends LitElement {
             );
             if (!response.ok) {
               return {
-                instance: 'This is not a valid instance',
+                instance: 'Must be a valid instance URL',
               };
             }
             const instance = await response.json();
             if (!instance.uri || instance.uri !== values.instance) {
               return {
-                instance: 'This is not a valid instance',
+                instance: 'Must be a valid instance URL',
               };
             }
             return {};
           } catch {
             return {
-              instance: 'This is not a valid instance',
+              instance: 'Must be a valid instance URL',
             };
           }
         },
@@ -141,6 +147,11 @@ export class SvSigninInstance extends LitElement {
               <span slot="suffix">${this.#renderSpinner()}</span>
             </sl-input>
           </felte-field>
+          <felte-validation-message class="error" for="instance" max="1">
+            <template>
+              <span aria-live="polite" data-part="item"></span>
+            </template>
+          </felte-validation-message>
           <sl-button
             @click=${(event: Event) => {
               const target = event.currentTarget as HTMLButtonElement;

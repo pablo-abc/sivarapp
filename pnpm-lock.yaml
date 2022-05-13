@@ -1,9 +1,9 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@felte/element': ^0.5.0
-  '@felte/reporter-element': ^0.4.1
-  '@felte/validator-vest': ^1.0.8
+  '@felte/element': ^0.5.1
+  '@felte/reporter-element': ^0.4.2
+  '@felte/validator-vest': ^1.0.9
   '@github/time-elements': ^3.1.2
   '@reduxjs/toolkit': ^1.8.1
   '@shoelace-style/shoelace': ^2.0.0-beta.73
@@ -18,9 +18,9 @@ specifiers:
   vite: ^2.9.7
 
 dependencies:
-  '@felte/element': 0.5.0
-  '@felte/reporter-element': 0.4.1
-  '@felte/validator-vest': 1.0.8_vest@4.3.4
+  '@felte/element': 0.5.1
+  '@felte/reporter-element': 0.4.2
+  '@felte/validator-vest': 1.0.9_vest@4.3.4
   '@github/time-elements': 3.1.2
   '@reduxjs/toolkit': 1.8.1
   '@shoelace-style/shoelace': 2.0.0-beta.73
@@ -45,37 +45,37 @@ packages:
       regenerator-runtime: 0.13.9
     dev: false
 
-  /@felte/common/1.1.0:
-    resolution: {integrity: sha512-nM3f4ReP3E5mvlIKKPABQLk7+98GVsYq2tLmqsa0xLHBnKMdJBJwjUw6h+qf1gekQLF/fu0zGAw+Jkk8ZAWFeA==}
+  /@felte/common/1.1.1:
+    resolution: {integrity: sha512-IRfz5mZmwchk70w2K4gz/dB49x2tDM4EMMx+TTpUW5ZbWhb6Bxj6hFJL7AXF9LWM5jCdUCPZo3V0KGQtrbkT7A==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dev: false
 
-  /@felte/core/1.3.0:
-    resolution: {integrity: sha512-9RdjfqMeBFyQMLPhH4xyuRAjjjGimdjIA6LWn0CW3gjEEEdLfu4r8lIM80XRsPsC2hoZvnb2pErVky9Hyg4Imw==}
+  /@felte/core/1.3.1:
+    resolution: {integrity: sha512-gbPG7Q2CMi6KpvexUfOsU1/VVqMrHtJN1FTyhvxidstgN5D0W9xKKzpN3jriNCBHXu/6ZLaMWN2+PUuPyg60Rw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
-      '@felte/common': 1.1.0
+      '@felte/common': 1.1.1
     dev: false
 
-  /@felte/element/0.5.0:
-    resolution: {integrity: sha512-2mjkZOC5wbjvWrqGoz1Gp0YK7ggfy5Jjjqz2uoCUzL6QpI2ovT1EOFt9eyof5SJulL6/lzck2ET9TAUWWRctMw==}
+  /@felte/element/0.5.1:
+    resolution: {integrity: sha512-x1N1FtnXtDpZX9ROpbKLh1c84SG9l2npfmxIiofV7ba5XkABiPOOV5mLCf5EK84c9vHd74tEsfpvNg4gEAN8xQ==}
     dependencies:
-      '@felte/core': 1.3.0
+      '@felte/core': 1.3.1
     dev: false
 
-  /@felte/reporter-element/0.4.1:
-    resolution: {integrity: sha512-lBodzrry5r8q9XJq45ToxKq0vo3DpwitXffD+K5X5eeErXirFhSTa5MShNWnKV7YG1SUK1M1HccXJ+dqpSfarg==}
+  /@felte/reporter-element/0.4.2:
+    resolution: {integrity: sha512-q9O3XM+XC2pXtFsloaM17nHlhHewp9jtZgLEXxwwdP2gL8tOffEL4A3MSpQ/GUJPkR9s7XU/G2VPAX9HYuV+5Q==}
     dependencies:
-      '@felte/common': 1.1.0
+      '@felte/common': 1.1.1
     dev: false
 
-  /@felte/validator-vest/1.0.8_vest@4.3.4:
-    resolution: {integrity: sha512-2er9A++vFcCteGRvhVe8LjFSFoCYEGhAmQNJjXcffWfhENLKvdTEYVNf+aN+rjdy5vVyc3xHFHQV9NYP2DY8OA==}
+  /@felte/validator-vest/1.0.9_vest@4.3.4:
+    resolution: {integrity: sha512-gE1rLoOvOYEpv/m9O41SZVaQC/DOB+dS3VVqpciAxWpSAK1bbWQqEnFM4CdNqtVfnhrdgFDYd6uidd7vh6MnNw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     peerDependencies:
       vest: ^4.0.1
     dependencies:
-      '@felte/common': 1.1.0
+      '@felte/common': 1.1.1
       vest: 4.3.4
     dev: false
 
