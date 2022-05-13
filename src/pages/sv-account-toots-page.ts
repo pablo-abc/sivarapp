@@ -11,7 +11,7 @@ import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 import '@components/sv-toot';
 import '@components/sv-toot-skeleton';
-import '@components/sv-fetch-toot-button';
+import '@components/sv-fetch-more-button';
 import storage from '@utils/storage';
 
 @customElement('sv-account-toots-page')
@@ -41,7 +41,7 @@ export class SvAccountTootsPage extends connect(LitElement) {
       color: var(--sl-color-primary-600);
     }
 
-    sv-fetch-toot-button {
+    sv-fetch-more-button {
       margin-bottom: 2rem;
     }
 
@@ -150,12 +150,12 @@ export class SvAccountTootsPage extends connect(LitElement) {
             ? html`<p id="nothing-text">There's nothing here :(</p>`
             : nothing,
         () => html`
-          <sv-fetch-toot-button
+          <sv-fetch-more-button
             ?loading=${this.loading}
             @sv:fetch-next=${this.fetchStatuses}
           >
             Fetch more
-          </sv-fetch-toot-button>
+          </sv-fetch-more-button>
         `
       )}
     `;

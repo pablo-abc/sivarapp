@@ -1,12 +1,13 @@
 import type { SlButton } from '@shoelace-style/shoelace';
 import { LitElement, html, css, type PropertyValues } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { debounce } from '@utils/debounce';
 
 import '@components/sv-toot-skeleton';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 
-@customElement('sv-fetch-toot-button')
+@customElement('sv-fetch-more-button')
 export class SvFetchTootButton extends LitElement {
   static styles = css`
     :host {
@@ -30,6 +31,7 @@ export class SvFetchTootButton extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
+    this.fetchNext = debounce(this.fetchNext.bind(this));
     this.#observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -55,7 +57,11 @@ export class SvFetchTootButton extends LitElement {
 
   override render() {
     if (this.loading) {
-      return html`<sv-toot-skeleton></sv-toot-skeleton>`;
+      return html`
+        <slot name="skeleton">
+          <sv-toot-skeleton></sv-toot-skeleton>
+        </slot>
+      `;
     }
     return html`<sl-button @click=${this.fetchNext}><slot></slot></sl-button>`;
   }

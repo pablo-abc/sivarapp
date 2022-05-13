@@ -2,7 +2,11 @@ import { configureStore } from '@reduxjs/toolkit';
 import accountReducer from './account';
 import authReducer from './auth';
 import instanceReducer from './instance';
-import notificationReducer, { addNotification } from './notification';
+import notificationReducer, {
+  addNotification,
+  fetchNotifications,
+  clearNotifications,
+} from './notification';
 import { connectNotifications } from '@api/account';
 import { onNotification } from '@utils/socket';
 
@@ -27,6 +31,12 @@ function handleNotifications(state: RootState) {
   if (!state.auth.authenticated && notificationSocket) {
     notificationSocket.close(1000, 'Signed Out');
     notificationSocket = undefined;
+  }
+  if (state.auth.authenticated && state.notification.state === 'idle') {
+    store.dispatch(fetchNotifications());
+  }
+  if (!state.auth.authenticated && state.notification.state !== 'idle') {
+    store.dispatch(clearNotifications());
   }
 }
 

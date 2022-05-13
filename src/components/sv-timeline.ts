@@ -6,7 +6,7 @@ import { getTimeline } from '@api/timelines';
 import { connect } from '@store/connect';
 
 import './sv-toot';
-import '@components/sv-fetch-toot-button';
+import '@components/sv-fetch-more-button';
 import '@components/sv-toot-compose';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
@@ -159,12 +159,12 @@ export class SvTimeline extends connect(LitElement) {
       <div id="pagination-footer">
         ${!this.empty
           ? html`
-              <sv-fetch-toot-button
+              <sv-fetch-more-button
                 ?loading=${this.loading}
                 @sv:fetch-next=${this.fetchNext}
               >
                 Fetch more
-              </sv-fetch-toot-button>
+              </sv-fetch-more-button>
             `
           : nothing}
       </div>

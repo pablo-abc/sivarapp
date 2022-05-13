@@ -11,6 +11,7 @@ import {
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Router } from '@vaadin/router';
 import link from '@styles/link';
+import emoji from '@styles/emoji';
 import {
   boostStatus,
   favouriteStatus,
@@ -19,6 +20,7 @@ import {
   deleteStatus,
 } from '@api/status';
 import { toast } from '@utils/toast';
+import { renderEmoji } from '@utils/emoji';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -39,18 +41,14 @@ import '@components/sv-media';
 function getContent(status: Status, type: 'spoiler' | 'content' = 'content') {
   const content = type === 'spoiler' ? status.spoiler_text : status.content;
   const emojis = status.emojis;
-  return emojis.reduce((acc, emoji) => {
-    return acc.replace(
-      `:${emoji.shortcode}:`,
-      `<img class="emoji" src="${emoji.url}" alt="">`
-    );
-  }, content);
+  return renderEmoji(content, emojis);
 }
 
 @customElement('sv-toot')
 export class SvToot extends LitElement {
   static styles = [
     link,
+    emoji,
     css`
       :host {
         display: block;
@@ -104,11 +102,6 @@ export class SvToot extends LitElement {
         bottom: -0.5rem;
       }
 
-      .emoji {
-        height: 1rem;
-        width: 1rem;
-      }
-
       sl-icon-button[label='options'] {
         font-size: 1.2rem;
       }
@@ -127,6 +120,9 @@ export class SvToot extends LitElement {
 
   @property({ type: Object })
   status?: Status;
+
+  @property({ type: Boolean })
+  contentOnly = false;
 
   get #status() {
     return this.status?.reblog || this.status;
@@ -331,7 +327,7 @@ export class SvToot extends LitElement {
   }
 
   renderMedia() {
-    const media = this.status?.media_attachments;
+    const media = this.#status?.media_attachments;
     if (!media?.length) return nothing;
     return html`<sv-media .media=${media}></sv-media>`;
   }
@@ -348,7 +344,12 @@ export class SvToot extends LitElement {
             <a href=${`/accounts/${status.account.id}`} rel="noreferrer">
               <div class="header__account">
                 <span class="header__name">
-                  ${status.account.display_name}
+                  ${unsafeHTML(
+                    renderEmoji(
+                      status.account.display_name,
+                      status.account.emojis
+                    )
+                  )}
                 </span>
                 <span class="header__acct">(${status.account.acct})</span>
               </div>
@@ -386,6 +387,13 @@ export class SvToot extends LitElement {
 
   override render() {
     if (this.deleted) return nothing;
+    if (this.contentOnly) {
+      return html`
+        <sl-card>
+          <div id="content">${this.renderContent()}</div>
+        </sl-card>
+      `;
+    }
     return html`
       <sl-card>
         ${this.renderHeader()}
@@ -440,8 +448,9 @@ export class SvToot extends LitElement {
           <sv-toot-compose
             status=${this.concatMentions}
             inreplytoid=${this.inReplyToId}
-            >Reply</sv-toot-compose
           >
+            Reply
+          </sv-toot-compose>
         </div>
         <sl-dialog
           id="delete-dialog"

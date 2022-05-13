@@ -1,40 +1,40 @@
+import { type NotificationsParams, getNotifications } from '@api/account';
 import { html } from 'lit';
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import {
+  createSlice,
+  createAsyncThunk,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
 import type { Notification } from '@types';
 import { toast } from '@utils/toast';
 
 import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@components/sv-notification';
 
 type NotificationState = {
+  state: 'loading' | 'fetched' | 'idle' | 'error';
   unreadCount: number;
   notifications: Notification[];
 };
 
 const initialState: NotificationState = {
+  state: 'idle',
   unreadCount: 0,
   notifications: [],
 };
 
 function notifyMention(notification: Notification) {
-  const status = notification.status;
-  if (status.visibility === 'direct') {
-    toast(html`
-      <strong>Direct message</strong> <br />
-      @${status.account.acct} sent you a direct message.<br />
-      <sl-button href=${`/statuses/${status.id}`} size="small">
-        See message
-      </sl-button>
-    `);
-  } else {
-    toast(html`
-      <strong>Mention</strong><br />
-      @${status.account.acct} mentioned you on a toot.<br />
-      <sl-button href=${`/statuses/${status.id}`} size="small">
-        See toot
-      </sl-button>
-    `);
-  }
+  toast(
+    html`<sv-notification .notification=${notification}></sv-notification>`
+  );
 }
+
+export const fetchNotifications = createAsyncThunk(
+  'notifications/fetch',
+  async (params?: NotificationsParams) => {
+    return getNotifications(params);
+  }
+);
 
 export const notificationSlice = createSlice({
   name: 'notification',
@@ -55,12 +55,35 @@ export const notificationSlice = createSlice({
     ) {
       state.notifications = action.payload;
     },
-    markAsRead(state: NotificationState) {
+    clearNotifications(state: NotificationState) {
+      state.notifications = [];
+      state.state = 'idle';
       state.unreadCount = 0;
     },
+    decrementUnread(state: NotificationState) {
+      if (state.unreadCount > 0) state.unreadCount = state.unreadCount - 1;
+    },
+    markAllAsRead(state: NotificationState) {
+      state.unreadCount = 0;
+    },
+  },
+  extraReducers(builder) {
+    builder.addCase(fetchNotifications.pending, (state) => {
+      state.state = 'loading';
+    });
+    builder.addCase(fetchNotifications.fulfilled, (state, action) => {
+      state.state = 'fetched';
+      state.notifications = action.payload;
+    });
   },
 });
 
 export default notificationSlice.reducer;
 
-export const { addNotification, markAsRead } = notificationSlice.actions;
+export const {
+  addNotification,
+  markAllAsRead,
+  setNotifications,
+  clearNotifications,
+  decrementUnread,
+} = notificationSlice.actions;

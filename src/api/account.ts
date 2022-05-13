@@ -1,4 +1,4 @@
-import type { Account, Status } from '@types';
+import type { Account, Status, Notification } from '@types';
 import storage from '@utils/storage';
 import { fetchJSON } from './fetch';
 
@@ -64,4 +64,35 @@ export function connectNotifications() {
     `wss://${currentInstance}/api/v1/streaming?stream=user&access_token=${accessToken}`
   );
   return socket;
+}
+
+export type NotificationsParams = {
+  max_id?: string;
+  since_id?: string;
+  min_id?: string;
+  limit?: number;
+  exclude_types?:
+    | 'follow'
+    | 'favourite'
+    | 'reblog'
+    | 'mention'
+    | 'poll'
+    | 'follow_request';
+  account_id?: string;
+};
+
+export function getNotifications({
+  limit,
+  ...params
+}: NotificationsParams = {}): Promise<Notification[]> {
+  const currentInstance = storage.currentInstance;
+  if (!currentInstance)
+    throw new Error('Cannot call without being logged in to an instance');
+  const url = new URL(`https://${currentInstance}/api/v1/notifications`);
+  const searchParams = new URLSearchParams({
+    ...params,
+    ...(limit != null && { limit: String(limit) }),
+  });
+  url.search = searchParams.toString();
+  return fetchJSON(url.toString(), { authenticated: true });
 }
