@@ -1,5 +1,9 @@
-import { getAccountStatuses } from '@api/account';
-import type { Status } from '@types';
+import {
+  getAccountStatuses,
+  getAccountFollowers,
+  getAccountFollowing,
+} from '@api/account';
+import type { Account, Status } from '@types';
 import type { RootState } from '@store/store';
 import { RouterLocation } from '@vaadin/router';
 import { LitElement, html, css, nothing } from 'lit';
@@ -28,9 +32,10 @@ export class SvAccountTootsPage extends connect(LitElement) {
       padding: 0;
     }
 
-    sl-button-group {
+    #button-groups {
       display: flex;
       justify-content: center;
+      flex-wrap: wrap;
       position: -webkit-sticky;
       position: sticky;
       top: 1rem;
@@ -70,6 +75,9 @@ export class SvAccountTootsPage extends connect(LitElement) {
   statuses: Status[] = [];
 
   @state()
+  accounts: Account[] = [];
+
+  @state()
   loggedInId?: string;
 
   override stateChanged(state: RootState) {
@@ -78,8 +86,33 @@ export class SvAccountTootsPage extends connect(LitElement) {
     this.loggedInId = state.account.accounts[currentInstance]?.id;
   }
 
+  async fetchAccounts() {
+    this.timeline = (this.location.params.timeline as string) || 'toots';
+    if (!['followers', 'following'].includes(this.timeline)) return;
+    const fetcher =
+      this.timeline === 'followers' ? getAccountFollowers : getAccountFollowing;
+    this.accountId = this.location.params.id as string;
+    try {
+      this.loading = true;
+      const params: { max_id?: string } = {};
+      const maxId = this.accounts[this.accounts.length - 1]?.id;
+      if (maxId) params.max_id = maxId;
+      const newAccounts = await fetcher(this.accountId, params);
+      const isLastPage = newAccounts.find((acc) => acc.id === maxId);
+      if (!newAccounts?.length || isLastPage) {
+        this.empty = true;
+        return;
+      }
+      this.accounts = [...this.accounts, ...newAccounts];
+      console.log(this.accounts);
+    } finally {
+      this.loading = false;
+    }
+  }
+
   async fetchStatuses() {
     this.timeline = (this.location.params.timeline as string) || 'toots';
+    if (['followers', 'following'].includes(this.timeline)) return;
     this.accountId = this.location.params.id as string;
     try {
       this.loading = true;
@@ -105,35 +138,67 @@ export class SvAccountTootsPage extends connect(LitElement) {
     }
   }
 
+  #fetchPage() {
+    this.fetchStatuses();
+    this.fetchAccounts();
+  }
+
   override connectedCallback(): void {
     super.connectedCallback();
-    this.fetchStatuses();
+    this.#fetchPage();
   }
 
   override render() {
+    const shouldRenderAccounts = ['followers', 'following'].includes(
+      this.timeline
+    );
+    const items = shouldRenderAccounts ? this.accounts : this.statuses;
     return html`
-      <sl-button-group>
-        <sl-button
-          href=${`/accounts/${this.accountId}`}
-          ?data-selected=${this.timeline === 'toots'}
-        >
-          Toots
-        </sl-button>
-        <sl-button
-          href=${`/accounts/${this.accountId}/with-replies`}
-          ?data-selected=${this.timeline === 'with-replies'}
-        >
-          Toots And Replies
-        </sl-button>
-        <sl-button
-          href=${`/accounts/${this.accountId}/media`}
-          ?data-selected=${this.timeline === 'media'}
-        >
-          Media
-        </sl-button>
-      </sl-button-group>
+      <div id="button-groups">
+        <sl-button-group>
+          <sl-button
+            href=${`/accounts/${this.accountId}`}
+            ?data-selected=${this.timeline === 'toots'}
+          >
+            Toots
+          </sl-button>
+          <sl-button
+            href=${`/accounts/${this.accountId}/with-replies`}
+            ?data-selected=${this.timeline === 'with-replies'}
+          >
+            Toots And Replies
+          </sl-button>
+          <sl-button
+            href=${`/accounts/${this.accountId}/media`}
+            ?data-selected=${this.timeline === 'media'}
+          >
+            Media
+          </sl-button>
+        </sl-button-group>
+        <sl-button-group>
+          <sl-button
+            href=${`/accounts/${this.accountId}/followers`}
+            ?data-selected=${this.timeline === 'followers'}
+          >
+            Followers
+          </sl-button>
+          <sl-button
+            href=${`/accounts/${this.accountId}/following`}
+            ?data-selected=${this.timeline === 'following'}
+          >
+            Following
+          </sl-button>
+        </sl-button-group>
+      </div>
       <ul>
-        ${this.statuses.map((toot) => {
+        ${items.map((toot) => {
+          if ('display_name' in toot) {
+            return html`
+              <li>
+                <sv-account .account=${toot} headeronly></sv-account>
+              </li>
+            `;
+          }
           const tootAccountId = toot.reblog
             ? toot.reblog.account.id
             : toot.account.id;
@@ -146,13 +211,13 @@ export class SvAccountTootsPage extends connect(LitElement) {
       ${when(
         this.empty,
         () =>
-          this.statuses.length === 0
+          items.length === 0
             ? html`<p id="nothing-text">There's nothing here :(</p>`
             : nothing,
         () => html`
           <sv-fetch-more-button
             ?loading=${this.loading}
-            @sv:fetch-next=${this.fetchStatuses}
+            @sv:fetch-next=${this.#fetchPage}
           >
             Fetch more
           </sv-fetch-more-button>

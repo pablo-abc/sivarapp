@@ -55,6 +55,52 @@ export function getAccountStatuses(
   });
 }
 
+export type FollowersParams = {
+  max_id?: string;
+  since_id?: string;
+  limit?: number;
+};
+
+export function getAccountFollowers(
+  id: string,
+  { limit, ...params }: FollowersParams = {}
+): Promise<Account[]> {
+  const currentInstance = storage.currentInstance;
+  if (!currentInstance)
+    throw new Error('Cannot call without being logged in to an instance');
+  const url = new URL(
+    `https://${currentInstance}/api/v1/accounts/${id}/followers`
+  );
+  const searchParams = new URLSearchParams({
+    ...params,
+    ...(limit != null && { limit: String(limit) }),
+  });
+  url.search = searchParams.toString();
+  return fetchJSON(url.toString(), {
+    authenticated: true,
+  });
+}
+
+export function getAccountFollowing(
+  id: string,
+  { limit, ...params }: FollowersParams = {}
+): Promise<Account[]> {
+  const currentInstance = storage.currentInstance;
+  if (!currentInstance)
+    throw new Error('Cannot call without being logged in to an instance');
+  const url = new URL(
+    `https://${currentInstance}/api/v1/accounts/${id}/following`
+  );
+  const searchParams = new URLSearchParams({
+    ...params,
+    ...(limit != null && { limit: String(limit) }),
+  });
+  url.search = searchParams.toString();
+  return fetchJSON(url.toString(), {
+    authenticated: true,
+  });
+}
+
 export function connectNotifications() {
   const currentInstance = storage.currentInstance;
   const accessToken = storage.accessToken;

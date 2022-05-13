@@ -137,13 +137,11 @@ export class SvMediaPreview extends LitElement {
   playVideo() {
     if (!this.video) return;
     this.video.play();
-    this.playing = true;
   }
 
   pauseVideo() {
     if (!this.video) return;
     this.video.pause();
-    this.playing = false;
   }
 
   override render() {
@@ -162,7 +160,14 @@ export class SvMediaPreview extends LitElement {
     if (att.type === 'gifv') {
       return html`
         <div id="video-container">
-          <video muted loop>
+          <video
+            @play=${() => (this.playing = true)}
+            @pause=${() => (this.playing = false)}
+            muted
+            loop
+            playsinline
+            poster=${att.preview_url}
+          >
             <source src=${att.url} type="video/mp4" />
           </video>
           ${when(
