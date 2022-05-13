@@ -101,6 +101,17 @@ export function getAccountFollowing(
   });
 }
 
+export function getAccountRelationship(idOrIds: string | string[]) {
+  const currentInstance = storage.currentInstance;
+  if (!currentInstance)
+    throw new Error('Cannot call without being logged in to an instance');
+  const ids = Array.isArray(idOrIds) ? idOrIds : [idOrIds];
+  const search = ids.map((id) => `id[]=${id}`).join('&');
+  return fetchJSON(
+    `https://${currentInstance}/api/v1/accounts/relationships?${search}`
+  );
+}
+
 export function connectNotifications() {
   const currentInstance = storage.currentInstance;
   const accessToken = storage.accessToken;

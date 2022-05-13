@@ -60,7 +60,15 @@ export class SvindexPage extends LitElement {
             >
               open source,
             </a>
-            released under the
+            developed by
+            <a
+              href="https://pablo.berganza.dev"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Pablo Berganza
+            </a>
+            and released under the
             <a
               href="https://www.gnu.org/licenses/agpl-3.0.en.html"
               target="_blank"

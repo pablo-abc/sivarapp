@@ -2,7 +2,7 @@ import type { SlDialog } from '@shoelace-style/shoelace';
 import type { Attachment } from '@types';
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
-import { when } from 'lit/directives/when.js';
+import { classMap } from 'lit/directives/class-map.js';
 
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
@@ -51,6 +51,12 @@ export class SvMediaPreview extends LitElement {
 
     video {
       width: 100%;
+      max-height: 20rem;
+      background-color: black;
+    }
+
+    #video-container video {
+      background-color: transparent;
     }
 
     #video-container {
@@ -67,28 +73,17 @@ export class SvMediaPreview extends LitElement {
       height: 100%;
       width: 100%;
       background-color: rgba(0, 0, 0, 0.5);
-      transition: background-color 0.1s;
+      transition: background-color 0.1s, opacity 0.1s;
       cursor: pointer;
       color: white;
+      opacity: 1;
     }
 
-    [name='pause-circle'] {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 100%;
-      width: 100%;
-      cursor: pointer;
+    [name='play-circle'].playing {
       opacity: 0;
-      background-color: rgba(0, 0, 0, 0.3);
-      transition: opacity 0.1s;
-      color: white;
     }
 
-    [name='play-circle']::part(base),
-    [name='pause-circle']::part(base) {
+    [name='play-circle']::part(base) {
       height: 5rem;
       width: 5rem;
       position: absolute;
@@ -99,10 +94,6 @@ export class SvMediaPreview extends LitElement {
 
     [name='play-circle']:hover {
       background-color: rgba(0, 0, 0, 0.3);
-    }
-
-    [name='pause-circle']:hover {
-      opacity: 1;
     }
   `;
 
@@ -144,6 +135,11 @@ export class SvMediaPreview extends LitElement {
     this.video.pause();
   }
 
+  togglePlay() {
+    if (this.playing) this.pauseVideo();
+    else this.playVideo();
+  }
+
   override render() {
     if (!this.attachment || this.attachment.type === 'unknown') return nothing;
     const att = this.attachment;
@@ -170,24 +166,22 @@ export class SvMediaPreview extends LitElement {
           >
             <source src=${att.url} type="video/mp4" />
           </video>
-          ${when(
-            !this.playing,
-            () => html`
-              <sl-icon
-                @click=${this.playVideo}
-                name="play-circle"
-                label="play"
-              ></sl-icon>
-            `,
-            () => html`
-              <sl-icon
-                @click=${this.pauseVideo}
-                name="pause-circle"
-                label="pause"
-              ></sl-icon>
-            `
-          )}
+          <sl-icon
+            @click=${this.togglePlay}
+            name="play-circle"
+            label="play"
+            class=${classMap({
+              playing: this.playing,
+            })}
+          ></sl-icon>
         </div>
+      `;
+    }
+    if (att.type === 'video') {
+      return html`
+        <video poster=${att.preview_url} controls>
+          <source src=${att.url} type="video/mp4" />
+        </video>
       `;
     }
     return nothing;
