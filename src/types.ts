@@ -207,3 +207,10 @@ export type Relationship = {
   blocked_by: boolean;
   note: string;
 };
+
+export type Conversation = {
+  id: string;
+  accounts: string;
+  unread: boolean;
+  last_status?: Status;
+};

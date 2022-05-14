@@ -43,6 +43,14 @@ router.setRoutes([
     },
   },
   {
+    path: '/conversations',
+    async action(_, commands) {
+      if (!isAuthenticated()) return commands.redirect('/');
+      await import('@pages/sv-conversations-page');
+      return commands.component('sv-conversations-page');
+    },
+  },
+  {
     path: '/accounts/:id',
     async action(_, commands) {
       if (!isAuthenticated()) return commands.redirect('/');

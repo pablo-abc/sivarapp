@@ -159,6 +159,7 @@ export class SvAccount extends LitElement {
           variant="primary"
           outline
         >
+          <sl-icon slot="prefix" name="person-dash"></sl-icon>
           Unfollow
         </sl-button>
       `;
@@ -192,6 +193,7 @@ export class SvAccount extends LitElement {
         ?loading=${this.loadingFollow}
         variant="primary"
       >
+        <sl-icon slot="prefix" name="person-plus"></sl-icon>
         Follow
       </sl-button>
     `;

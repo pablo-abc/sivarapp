@@ -77,6 +77,9 @@ export class SvTootCompose extends LitElement {
   @property()
   status: string = '';
 
+  @property()
+  label = 'Compose a toot';
+
   @property({ reflect: true, type: Boolean })
   submitting = false;
 
@@ -238,6 +241,7 @@ export class SvTootCompose extends LitElement {
       <template id="vm">
         <span aria-live="polite" data-part="item"></span>
       </template>
+      <slot name="preview"></slot>
       <felte-form
         @feltesuccess=${this.#handleSuccess}
         @felteerror=${this.#handleError}
@@ -358,7 +362,7 @@ export class SvTootCompose extends LitElement {
       <sl-dialog
         @sl-after-hide=${this.#handleDialogHide}
         @sl-request-close=${this.#handleRequestClose}
-        label="Compose a toot"
+        label=${this.label}
       >
         ${this.#renderDialogContent()}
         <div slot="footer">

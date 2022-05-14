@@ -129,6 +129,9 @@ export class SvAccountMini extends LitElement {
       case 'open-notifications':
         Router.go('/notifications');
         break;
+      case 'open-direct':
+        Router.go('/conversations');
+        break;
     }
   }
 
@@ -160,7 +163,14 @@ export class SvAccountMini extends LitElement {
           )}
         </sl-button>
         <sl-menu @sl-select=${this.#handleSelect}>
-          <sl-menu-item value="open-profile">Open profile</sl-menu-item>
+          <sl-menu-item value="open-profile">
+            <sl-icon slot="prefix" name="person"></sl-icon>
+            Open profile
+          </sl-menu-item>
+          <sl-menu-item value="open-direct">
+            <sl-icon name="envelope" slot="prefix"></sl-icon>
+            Direct messages
+          </sl-menu-item>
           <sl-menu-item value="open-notifications">
             Notifications
             <sl-badge
@@ -172,7 +182,10 @@ export class SvAccountMini extends LitElement {
             </sl-badge>
           </sl-menu-item>
           <sl-divider></sl-divider>
-          <sl-menu-item value="sign-out">Sign out</sl-menu-item>
+          <sl-menu-item value="sign-out">
+            <sl-icon name="box-arrow-left" slot="prefix"></sl-icon>
+            Sign out
+          </sl-menu-item>
         </sl-menu>
       </sl-dropdown>
     `;

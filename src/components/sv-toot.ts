@@ -22,6 +22,7 @@ import {
 import { toast } from '@utils/toast';
 import { renderEmoji } from '@utils/emoji';
 import { truncate } from '@utils/truncate';
+import { ifDefined } from 'lit/directives/if-defined.js';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -53,6 +54,15 @@ export class SvToot extends LitElement {
     css`
       :host {
         display: block;
+      }
+
+      :host([aslink]) > a {
+        color: inherit;
+        display: block;
+      }
+
+      :host([aslink]) > a:hover > sl-card::part(base) {
+        background-color: var(--sl-color-neutral-100);
       }
 
       sl-card {
@@ -116,6 +126,10 @@ export class SvToot extends LitElement {
         justify-content: space-between;
         align-items: center;
       }
+
+      [slot='preview'] {
+        margin-bottom: 2rem;
+      }
     `,
   ];
 
@@ -124,6 +138,9 @@ export class SvToot extends LitElement {
 
   @property({ type: Boolean })
   contentOnly = false;
+
+  @property({ type: Boolean, reflect: true })
+  asLink = false;
 
   get #status() {
     return this.status?.reblog || this.status;
@@ -329,6 +346,26 @@ export class SvToot extends LitElement {
     `;
   }
 
+  renderOptionsMenu() {
+    if (this.asLink) return nothing;
+    return html`
+      <sl-dropdown>
+        <sl-tooltip slot="trigger" content="Options">
+          <sl-icon-button
+            label="options"
+            name="three-dots-vertical"
+          ></sl-icon-button>
+        </sl-tooltip>
+        <sl-menu @sl-select=${this.selectOption}>
+          <sl-menu-item value="open-toot">Open status</sl-menu-item>
+          <sl-menu-item value="copy-url">Copy link URL</sl-menu-item>
+          <sl-menu-item value="open-tab">Open in new tab</sl-menu-item>
+          ${this.renderOwnedOptions()}
+        </sl-menu>
+      </sl-dropdown>
+    `;
+  }
+
   renderMedia() {
     const media = this.#status?.media_attachments;
     if (!media?.length) return nothing;
@@ -372,26 +409,23 @@ export class SvToot extends LitElement {
             <relative-time datetime=${status.created_at}></relative-time>
           </div>
         </div>
-        <sl-dropdown>
-          <sl-tooltip slot="trigger" content="Options">
-            <sl-icon-button
-              label="options"
-              name="three-dots-vertical"
-            ></sl-icon-button>
-          </sl-tooltip>
-          <sl-menu @sl-select=${this.selectOption}>
-            <sl-menu-item value="open-toot">Open status</sl-menu-item>
-            <sl-menu-item value="copy-url">Copy link URL</sl-menu-item>
-            <sl-menu-item value="open-tab">Open in new tab</sl-menu-item>
-            ${this.renderOwnedOptions()}
-          </sl-menu>
-        </sl-dropdown>
+        ${this.renderOptionsMenu()}
       </div>
     `;
   }
 
   override render() {
-    if (this.deleted) return nothing;
+    if (this.deleted || !this.status) return nothing;
+    if (this.asLink) {
+      return html`
+        <a href=${`/statuses/${this.status.id}`}>
+          <sl-card>
+            ${this.renderHeader()}
+            <div id="content">${this.renderContent()}</div>
+          </sl-card>
+        </a>
+      `;
+    }
     if (this.contentOnly) {
       return html`
         <sl-card>
@@ -453,8 +487,13 @@ export class SvToot extends LitElement {
           <sv-toot-compose
             status=${this.concatMentions}
             inreplytoid=${this.inReplyToId}
+            visibility=${ifDefined(this.#status?.visibility)}
+            label="Replying to: ${ifDefined(
+              this.#status?.account.display_name || this.#status?.account.acct
+            )}"
           >
             Reply
+            <sl-card slot="preview">${this.renderContent()}</sl-card>
           </sv-toot-compose>
         </div>
         <sl-dialog
