@@ -11,7 +11,7 @@
   },
   "license": "AGPL-3.0",
   "dependencies": {
-    "@felte/element": "^0.5.1",
+    "@felte/element": "^0.5.2",
     "@felte/reporter-element": "^0.4.2",
     "@felte/validator-vest": "^1.0.9",
     "@github/time-elements": "^3.1.2",

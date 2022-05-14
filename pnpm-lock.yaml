@@ -1,7 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@felte/element': ^0.5.1
+  '@felte/element': ^0.5.2
   '@felte/reporter-element': ^0.4.2
   '@felte/validator-vest': ^1.0.9
   '@github/time-elements': ^3.1.2
@@ -18,7 +18,7 @@ specifiers:
   vite: ^2.9.7
 
 dependencies:
-  '@felte/element': 0.5.1
+  '@felte/element': 0.5.2
   '@felte/reporter-element': 0.4.2
   '@felte/validator-vest': 1.0.9_vest@4.3.4
   '@github/time-elements': 3.1.2
@@ -50,17 +50,17 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dev: false
 
-  /@felte/core/1.3.1:
-    resolution: {integrity: sha512-gbPG7Q2CMi6KpvexUfOsU1/VVqMrHtJN1FTyhvxidstgN5D0W9xKKzpN3jriNCBHXu/6ZLaMWN2+PUuPyg60Rw==}
+  /@felte/core/1.3.2:
+    resolution: {integrity: sha512-xfn3yeATLpnDijyA36opnwZMSqjsHgp4a+KDSLCqhsC46bEFTO/XFQS/02YDSefNkqcwNlHI5E1BtOG0IUVh1w==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       '@felte/common': 1.1.1
     dev: false
 
-  /@felte/element/0.5.1:
-    resolution: {integrity: sha512-x1N1FtnXtDpZX9ROpbKLh1c84SG9l2npfmxIiofV7ba5XkABiPOOV5mLCf5EK84c9vHd74tEsfpvNg4gEAN8xQ==}
+  /@felte/element/0.5.2:
+    resolution: {integrity: sha512-H6bL89lQrYLEp0EBf+p+xzlhKWWvw/1edsgs5jWeiAvw/FQgaBYjADSH/3tLPBCiL1WcPPvhztmXrXQzyYYI6A==}
     dependencies:
-      '@felte/core': 1.3.1
+      '@felte/core': 1.3.2
     dev: false
 
   /@felte/reporter-element/0.4.2:
