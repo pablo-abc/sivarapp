@@ -2,21 +2,22 @@ import {
   getAccountStatuses,
   getAccountFollowers,
   getAccountFollowing,
+  getAccountRelationship,
 } from '@api/account';
-import type { Account, Status } from '@types';
+import type { Account, Relationship, Status } from '@types';
 import type { RootState } from '@store/store';
 import { RouterLocation } from '@vaadin/router';
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { connect } from '@store/connect';
+import storage from '@utils/storage';
 
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 import '@components/sv-toot';
 import '@components/sv-toot-skeleton';
 import '@components/sv-fetch-more-button';
-import storage from '@utils/storage';
 
 @customElement('sv-account-toots-page')
 export class SvAccountTootsPage extends connect(LitElement) {
@@ -78,7 +79,7 @@ export class SvAccountTootsPage extends connect(LitElement) {
   pinnedStatuses: Status[] = [];
 
   @state()
-  accounts: Account[] = [];
+  accounts: (Account & { relationship: Relationship })[] = [];
 
   @state()
   loggedInId?: string;
@@ -106,7 +107,16 @@ export class SvAccountTootsPage extends connect(LitElement) {
         this.empty = true;
         return;
       }
-      this.accounts = [...this.accounts, ...newAccounts];
+      const relationships = await getAccountRelationship(
+        newAccounts.map((acc) => acc.id)
+      );
+      this.accounts = [
+        ...this.accounts,
+        ...newAccounts.map((acc, index) => ({
+          ...acc,
+          relationship: relationships[index],
+        })),
+      ];
     } finally {
       this.loading = false;
     }
@@ -214,7 +224,11 @@ export class SvAccountTootsPage extends connect(LitElement) {
           if ('display_name' in toot) {
             return html`
               <li>
-                <sv-account .account=${toot} headeronly></sv-account>
+                <sv-account
+                  .account=${toot}
+                  .relationship=${toot.relationship}
+                  headeronly
+                ></sv-account>
               </li>
             `;
           }
