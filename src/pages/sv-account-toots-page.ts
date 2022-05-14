@@ -75,6 +75,9 @@ export class SvAccountTootsPage extends connect(LitElement) {
   statuses: Status[] = [];
 
   @state()
+  pinnedStatuses: Status[] = [];
+
+  @state()
   accounts: Account[] = [];
 
   @state()
@@ -104,11 +107,12 @@ export class SvAccountTootsPage extends connect(LitElement) {
         return;
       }
       this.accounts = [...this.accounts, ...newAccounts];
-      console.log(this.accounts);
     } finally {
       this.loading = false;
     }
   }
+
+  #fetchedPinned = false;
 
   async fetchStatuses() {
     this.timeline = (this.location.params.timeline as string) || 'toots';
@@ -116,6 +120,19 @@ export class SvAccountTootsPage extends connect(LitElement) {
     this.accountId = this.location.params.id as string;
     try {
       this.loading = true;
+      if (!this.#fetchedPinned) {
+        this.pinnedStatuses = (
+          await getAccountStatuses(this.accountId, {
+            pinned: true,
+          })
+        ).map((toot) => {
+          return {
+            ...toot,
+            pinned: true,
+            reblogged: !!toot.reblog || toot.reblogged,
+          };
+        });
+      }
       const newToots = (
         await getAccountStatuses(this.accountId, {
           excludeReplies: this.timeline !== 'with-replies',
@@ -152,7 +169,9 @@ export class SvAccountTootsPage extends connect(LitElement) {
     const shouldRenderAccounts = ['followers', 'following'].includes(
       this.timeline
     );
-    const items = shouldRenderAccounts ? this.accounts : this.statuses;
+    const items = shouldRenderAccounts
+      ? this.accounts
+      : [...this.pinnedStatuses, ...this.statuses];
     return html`
       <div id="button-groups">
         <sl-button-group>
@@ -204,7 +223,11 @@ export class SvAccountTootsPage extends connect(LitElement) {
             : toot.account.id;
           const owned = tootAccountId === this.loggedInId;
           return html`<li>
-            <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
+            <sv-toot
+              ?owned=${owned}
+              .status=${toot}
+              ?pinned=${toot.pinned}
+            ></sv-toot>
           </li>`;
         })}
       </ul>

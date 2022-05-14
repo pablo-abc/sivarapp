@@ -25,13 +25,15 @@ type StatusesOptions = {
   excludeReplies?: boolean;
   onlyMedia?: boolean;
   maxId?: string;
+  pinned?: boolean;
 };
 
 export function getAccountStatuses(
   id: string,
-  { excludeReplies, onlyMedia, maxId }: StatusesOptions = {
+  { excludeReplies, onlyMedia, maxId, pinned }: StatusesOptions = {
     excludeReplies: true,
     onlyMedia: false,
+    pinned: false,
   }
 ): Promise<Status[]> {
   const currentInstance = storage.currentInstance;
@@ -46,6 +48,7 @@ export function getAccountStatuses(
   } else {
     searchParams.append('exclude_replies', String(excludeReplies));
   }
+  searchParams.append('pinned', pinned ? 'true' : 'false');
   if (maxId) {
     searchParams.append('max_id', maxId);
   }

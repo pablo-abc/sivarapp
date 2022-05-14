@@ -23,6 +23,7 @@ import { toast } from '@utils/toast';
 import { renderEmoji } from '@utils/emoji';
 import { truncate } from '@utils/truncate';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { when } from 'lit/directives/when.js';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -92,6 +93,14 @@ export class SvToot extends LitElement {
         opacity: 0.6;
       }
 
+      .pinned-indicator {
+        display: flex;
+        align-items: center;
+        opacity: 0.6;
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+      }
+
       #user-section {
         display: flex;
         align-items: center;
@@ -148,6 +157,9 @@ export class SvToot extends LitElement {
 
   @property({ type: Boolean, reflect: true })
   favourited = false;
+
+  @property({ type: Boolean })
+  pinned = false;
 
   @state()
   syncingFavourited = false;
@@ -383,6 +395,15 @@ export class SvToot extends LitElement {
         <div id="user-section">
           ${this.renderAvatar()}
           <div class="info">
+            ${when(
+              this.pinned,
+              () => html`
+                <span class="pinned-indicator">
+                  <sl-icon name="pin-fill"></sl-icon>
+                  Pinned
+                </span>
+              `
+            )}
             <a href=${`/accounts/${status.account.id}`} rel="noreferrer">
               <div class="header__account">
                 <span class="header__name">
