@@ -78,6 +78,8 @@ export class SvToot extends LitElement {
 
       .header__acct {
         font-style: italic;
+        font-size: 0.75rem;
+        opacity: 0.6;
       }
 
       .header__reblog {
@@ -407,15 +409,17 @@ export class SvToot extends LitElement {
             <a href=${`/accounts/${status.account.id}`} rel="noreferrer">
               <div class="header__account">
                 <span class="header__name">
-                  ${unsafeHTML(
-                    renderEmoji(
-                      status.account.display_name,
-                      status.account.emojis
-                    )
-                  )}
+                  ${status.account.display_name
+                    ? unsafeHTML(
+                        renderEmoji(
+                          status.account.display_name,
+                          status.account.emojis
+                        )
+                      )
+                    : status.account.username}
                 </span>
                 <span class="header__acct">
-                  (${truncate(status.account.acct)})
+                  ${truncate(status.account.acct)}
                 </span>
               </div>
             </a>

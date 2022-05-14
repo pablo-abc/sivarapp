@@ -39,6 +39,12 @@ export class SvAccount extends LitElement {
         line-height: 1.5rem;
       }
 
+      .header__acct {
+        opacity: 0.6;
+        font-size: 0.75rem;
+        font-style: italic;
+      }
+
       sl-avatar {
         margin-right: 0.5rem;
       }
@@ -71,6 +77,11 @@ export class SvAccount extends LitElement {
 
       #fields sl-icon {
         color: var(--sl-color-lime-600);
+      }
+
+      #badges {
+        display: flex;
+        justify-content: space-between;
       }
     `,
   ];
@@ -125,23 +136,19 @@ export class SvAccount extends LitElement {
             >
               <div class="header__account">
                 <span class="header__name">
-                  ${unsafeHTML(
-                    renderEmoji(this.account.display_name, this.account.emojis)
-                  )}
+                  ${this.account.display_name
+                    ? unsafeHTML(
+                        renderEmoji(
+                          this.account.display_name,
+                          this.account.emojis
+                        )
+                      )
+                    : this.account.username}
                 </span>
                 <br />
-                <span class="header__acct">(${this.account.acct})</span>
+                <span class="header__acct">${this.account.acct}</span>
               </div>
             </a>
-            <sl-badge pill variant="neutral">
-              ${this.account.statuses_count} Toots
-            </sl-badge>
-            <sl-badge pill variant="neutral">
-              ${this.account.following_count} Follows
-            </sl-badge>
-            <sl-badge pill variant="neutral">
-              ${this.account.followers_count} Followers
-            </sl-badge>
           </div>
         </div>
         ${this.#renderFollowButton()}
@@ -218,7 +225,12 @@ export class SvAccount extends LitElement {
                 return html`
                   <div class="field">
                     <dt>
-                      <strong>${field.name}</strong>
+                      <strong
+                        >${renderEmoji(
+                          field.name,
+                          this.account!.emojis
+                        )}</strong
+                      >
                       ${when(
                         field.verified_at,
                         () => html`
@@ -235,6 +247,17 @@ export class SvAccount extends LitElement {
             </dl>
           `
         )}
+        <div id="badges" slot="footer">
+          <sl-badge pill variant="neutral">
+            ${this.account.statuses_count} Toots
+          </sl-badge>
+          <sl-badge pill variant="neutral">
+            ${this.account.following_count} Follows
+          </sl-badge>
+          <sl-badge pill variant="neutral">
+            ${this.account.followers_count} Followers
+          </sl-badge>
+        </div>
       </sl-card>
     `;
   }
