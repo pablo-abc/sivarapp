@@ -1,4 +1,4 @@
-import type { Account, Status, Notification } from '@types';
+import type { Account, Status, Notification, Relationship } from '@types';
 import storage from '@utils/storage';
 import { fetchJSON } from './fetch';
 
@@ -108,7 +108,47 @@ export function getAccountRelationship(idOrIds: string | string[]) {
   const ids = Array.isArray(idOrIds) ? idOrIds : [idOrIds];
   const search = ids.map((id) => `id[]=${id}`).join('&');
   return fetchJSON(
-    `https://${currentInstance}/api/v1/accounts/relationships?${search}`
+    `https://${currentInstance}/api/v1/accounts/relationships?${search}`,
+    {
+      authenticated: true,
+    }
+  );
+}
+
+type FollowParams = {
+  reblogs?: string;
+  notify?: string;
+};
+
+export function followAccount(
+  id: string,
+  params?: FollowParams
+): Promise<Relationship> {
+  const currentInstance = storage.currentInstance;
+  if (!currentInstance)
+    throw new Error('Cannot call without being logged in to an instance');
+  const url = new URL(
+    `https://${currentInstance}/api/v1/accounts/${id}/follow`
+  );
+  const searchParams = new URLSearchParams(params);
+  url.search = searchParams.toString();
+
+  return fetchJSON(url.toString(), {
+    method: 'POST',
+    authenticated: true,
+  });
+}
+
+export function unfollowAccount(id: string): Promise<Relationship> {
+  const currentInstance = storage.currentInstance;
+  if (!currentInstance)
+    throw new Error('Cannot call without being logged in to an instance');
+  return fetchJSON(
+    `https://${currentInstance}/api/v1/accounts/${id}/unfollow`,
+    {
+      method: 'POST',
+      authenticated: true,
+    }
   );
 }
 

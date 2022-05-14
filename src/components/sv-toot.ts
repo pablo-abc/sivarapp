@@ -159,12 +159,14 @@ export class SvToot extends LitElement {
   get concatMentions() {
     if (!this.#status) return '';
     const status = this.#status;
-    return [
-      `@${status.account.acct}`,
-      ...status.mentions.map((mention) => {
-        return `@${mention.acct}`;
-      }),
-    ].join(' ');
+    return Array.from(
+      new Set([
+        `@${status.account.acct}`,
+        ...status.mentions.map((mention) => {
+          return `@${mention.acct}`;
+        }),
+      ])
+    ).join(' ');
   }
 
   get inReplyToId() {

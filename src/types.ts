@@ -191,3 +191,19 @@ export type Notification = {
   account: Account;
   status: Status;
 };
+
+export type Relationship = {
+  id: string;
+  following: boolean;
+  requested: boolean;
+  endorsed: boolean;
+  followed_by: boolean;
+  muting: boolean;
+  muting_notifications: boolean;
+  showing_reblogs: boolean;
+  notifying: boolean;
+  blocking: boolean;
+  domain_blocking: boolean;
+  blocked_by: boolean;
+  note: string;
+};
