@@ -9,6 +9,7 @@ import { toast } from '@utils/toast';
 import { reporter } from '@felte/reporter-element';
 import { validator } from '@felte/validator-vest';
 import { create, enforce, test } from 'vest';
+import { Router } from '@vaadin/router';
 
 import '@felte/element/felte-form';
 import '@felte/element/felte-field';
@@ -171,10 +172,7 @@ export class SvTootCompose extends LitElement {
     toast(
       html`
         <strong>Toot sent!</strong><br />
-        <span>Your toot was successfully sent</span><br />
-        <sl-button href=${`/statuses/${newStatus.id}`} size="small">
-          Go to toot
-        </sl-button>
+        <span>Your toot was successfully published</span><br />
       `,
       {
         variant: 'success',
@@ -183,6 +181,7 @@ export class SvTootCompose extends LitElement {
     );
     this.closeDialog();
     this.idempKey = createId();
+    Router.go(`/statuses/${newStatus.id}`);
   }
 
   #handleError(event: Event) {

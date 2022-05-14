@@ -115,7 +115,7 @@ export class SvAccount extends LitElement {
     return html`
       <div id="header" slot=${ifDefined(slotted ? 'header' : undefined)}>
         <div id="header-left">
-          <sl-avatar image=${this.account.avatar}></sl-avatar>
+          <sl-avatar image=${this.account.avatar_static}></sl-avatar>
           <div class="info">
             <a
               href=${this.headerOnly

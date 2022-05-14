@@ -143,7 +143,7 @@ export class SvAccountMini extends LitElement {
             this.loading || !this.account,
             () => this.#renderSkeleton(),
             () => html`
-              <sl-avatar slot="prefix" image=${this.account!.avatar}>
+              <sl-avatar slot="prefix" image=${this.account!.avatar_static}>
               </sl-avatar>
               <span id="header">
                 <span class="info">

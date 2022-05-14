@@ -322,16 +322,18 @@ export class SvToot extends LitElement {
         <div id="reblog-avatar">
           <sl-avatar
             id="reblog-author"
-            image=${reblog.account.avatar}
+            image=${reblog.account.avatar_static}
           ></sl-avatar>
           <sl-avatar
             id="reblog-reblogger"
-            image=${this.status.account.avatar}
+            image=${this.status.account.avatar_static}
           ></sl-avatar>
         </div>
       `;
     } else {
-      return html`<sl-avatar image=${this.status.account.avatar}></sl-avatar>`;
+      return html`<sl-avatar
+        image=${this.status.account.avatar_static}
+      ></sl-avatar>`;
     }
   }
 
