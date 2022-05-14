@@ -47,7 +47,7 @@ export class SvAccountMini extends LitElement {
       #skeleton {
         display: flex;
         align-items: center;
-        min-width: 15rem;
+        min-width: 8rem;
         padding: 0.5rem 0;
       }
 
