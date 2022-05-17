@@ -6,6 +6,7 @@ import notificationReducer, {
   addNotification,
   fetchNotifications,
   clearNotifications,
+  notifyMiddleware,
 } from './notification';
 import { connectNotifications } from '@api/account';
 import { onNotification } from '@utils/socket';
@@ -17,6 +18,8 @@ export const store = configureStore({
     instance: instanceReducer,
     notification: notificationReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(notifyMiddleware),
 });
 
 let notificationSocket: WebSocket | undefined;
@@ -41,11 +44,6 @@ function handleNotifications(state: RootState) {
 }
 
 handleNotifications(store.getState());
-
-store.subscribe(() => {
-  const state = store.getState();
-  handleNotifications(state);
-});
 
 export const isAuthenticated = () => !!store.getState().auth.authenticated;
 

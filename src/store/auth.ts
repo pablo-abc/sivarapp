@@ -5,6 +5,12 @@ import type { Application } from '@types';
 import { toast } from '@utils/toast';
 import storage from '@utils/storage';
 import { Router } from '@vaadin/router';
+import {
+  startNotifications,
+  stopNotifications,
+  fetchNotifications,
+  clearNotifications,
+} from './notification';
 
 export type AuthState = {
   accessToken?: string;
@@ -23,15 +29,20 @@ export const authorize = createAsyncThunk(
 
 export const authenticate = createAsyncThunk(
   'auth/authenticate',
-  async (code: string) => {
-    return authenticateUser(code);
+  async (code: string, { dispatch }) => {
+    const authInfo = await authenticateUser(code);
+    dispatch(startNotifications());
+    dispatch(fetchNotifications());
+    return authInfo;
   }
 );
 
 export const unauthenticate = createAsyncThunk(
   'auth/unauthenticate',
-  async () => {
-    return unauthenticateUser();
+  async (_, { dispatch }) => {
+    await unauthenticateUser();
+    dispatch(stopNotifications());
+    dispatch(clearNotifications());
   }
 );
 
