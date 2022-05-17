@@ -12,7 +12,6 @@ import { toast } from '@utils/toast';
 import { connectNotifications } from '@api/account';
 import { onNotification } from '@utils/socket';
 
-import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@components/sv-notification';
 
 type NotificationState = {
