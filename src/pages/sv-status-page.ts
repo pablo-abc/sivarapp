@@ -57,10 +57,17 @@ export class SvStatusPage extends connect(LitElement) {
   @state()
   accountId?: string;
 
+  @state()
+  notFound = false;
+
   async fetchStatus() {
     const id = this.location.params.id as string;
     if (!id) return;
-    this.status = await getStatus(id);
+    try {
+      this.status = await getStatus(id);
+    } catch {
+      this.notFound = true;
+    }
   }
 
   async fetchStatusContext() {
@@ -81,53 +88,58 @@ export class SvStatusPage extends connect(LitElement) {
     this.fetchStatusContext();
   }
 
+  #renderContent() {
+    if (this.notFound) return html`<h1>Not found</h1>`;
+    return html`
+      ${when(
+        this.context.ancestors.length > 0,
+        () => html`
+          <ul>
+            ${this.context.ancestors.map((toot) => {
+              const accountId = toot.reblog
+                ? toot.reblog.account.id
+                : toot.account.id;
+              const owned = this.accountId === accountId;
+              return html`
+                <li>
+                  <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
+                </li>
+              `;
+            })}
+          </ul>
+          <sl-divider></sl-divider>
+        `
+      )}
+      ${when(
+        this.status,
+        () =>
+          html`<sv-toot
+            ${ref((el) => el && setTimeout(() => el.scrollIntoView()))}
+            ?owned=${this.accountId ===
+            (this.status!.reblog?.account.id || this.status!.account.id)}
+            .status=${this.status}
+          ></sv-toot>`,
+        () => html`<sv-toot-skeleton></sv-toot-skeleton>`
+      )}
+      <sl-divider></sl-divider>
+      <ul>
+        ${this.context.descendants.map((toot) => {
+          const accountId = toot.reblog
+            ? toot.reblog.account.id
+            : toot.account.id;
+          const owned = this.accountId === accountId;
+          return html`<li>
+            <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
+          </li>`;
+        })}
+      </ul>
+    `;
+  }
+
   override render() {
     return html`
       <sv-title></sv-title>
-      <main>
-        ${when(
-          this.context.ancestors.length > 0,
-          () => html`
-            <ul>
-              ${this.context.ancestors.map((toot) => {
-                const accountId = toot.reblog
-                  ? toot.reblog.account.id
-                  : toot.account.id;
-                const owned = this.accountId === accountId;
-                return html`
-                  <li>
-                    <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
-                  </li>
-                `;
-              })}
-            </ul>
-            <sl-divider></sl-divider>
-          `
-        )}
-        ${when(
-          this.status,
-          () =>
-            html`<sv-toot
-              ${ref((el) => el && setTimeout(() => el.scrollIntoView()))}
-              ?owned=${this.accountId ===
-              (this.status!.reblog?.account.id || this.status!.account.id)}
-              .status=${this.status}
-            ></sv-toot>`,
-          () => html`<sv-toot-skeleton></sv-toot-skeleton>`
-        )}
-        <sl-divider></sl-divider>
-        <ul>
-          ${this.context.descendants.map((toot) => {
-            const accountId = toot.reblog
-              ? toot.reblog.account.id
-              : toot.account.id;
-            const owned = this.accountId === accountId;
-            return html`<li>
-              <sv-toot ?owned=${owned} .status=${toot}></sv-toot>
-            </li>`;
-          })}
-        </ul>
-      </main>
+      <main>${this.#renderContent()}</main>
     `;
   }
 }

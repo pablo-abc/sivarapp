@@ -32,6 +32,9 @@ export class SvAccountLayout extends connect(LitElement) {
   @state()
   accountLoading = false;
 
+  @state()
+  notFound = false;
+
   @property({ attribute: false })
   location!: RouterLocation;
 
@@ -53,6 +56,8 @@ export class SvAccountLayout extends connect(LitElement) {
       this.accountLoading = true;
       this.account = await getAccount(this.location.params.id as string);
       this.relationship = (await getAccountRelationship(this.account.id))?.[0];
+    } catch {
+      this.notFound = true;
     } finally {
       this.accountLoading = false;
     }
@@ -64,6 +69,7 @@ export class SvAccountLayout extends connect(LitElement) {
   }
 
   renderCard() {
+    if (this.notFound) return html`<h1>Not found</h1>`;
     if (this.accountLoading || !this.account)
       return html`<sv-toot-skeleton></sv-toot-skeleton>`;
     return html`
