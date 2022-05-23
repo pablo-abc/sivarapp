@@ -68,6 +68,7 @@ export class SvToot extends LitElement {
 
       sl-card {
         width: 100%;
+        line-height: 1.5rem;
       }
 
       #header {
@@ -222,7 +223,8 @@ export class SvToot extends LitElement {
         break;
       }
       case 'open-toot': {
-        const id = this.status.id;
+        const id = this.#status?.id;
+        if (!id) return;
         Router.go(`/statuses/${id}`);
         break;
       }
@@ -469,12 +471,12 @@ export class SvToot extends LitElement {
           <div>
             <sl-tooltip content="See replies">
               <sl-button
-                href=${`/statuses/${this.status?.id}`}
+                href=${`/statuses/${this.#status?.id}`}
                 pill
                 size="small"
               >
                 <sl-icon label="See replies" name="chat-square-text"></sl-icon>
-                ${this.status?.replies_count}
+                ${this.#status?.replies_count}
               </sl-button>
             </sl-tooltip>
             <sl-tooltip
@@ -491,7 +493,7 @@ export class SvToot extends LitElement {
                 ?disabled=${this.status?.visibility === 'direct'}
               >
                 <sl-icon label="Boost" name="arrow-repeat"></sl-icon>
-                ${this.status?.reblogs_count}
+                ${this.#status?.reblogs_count}
               </sl-button>
             </sl-tooltip>
             <sl-tooltip content="Favourite">
@@ -507,7 +509,7 @@ export class SvToot extends LitElement {
                   label="Favourites"
                   name=${this.favourited ? 'star-fill' : 'star'}
                 ></sl-icon>
-                ${this.status?.favourites_count}
+                ${this.#status?.favourites_count}
               </sl-button>
             </sl-tooltip>
           </div>

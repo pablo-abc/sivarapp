@@ -1,4 +1,3 @@
-import type { RootState } from './store';
 import { type NotificationsParams, getNotifications } from '@api/account';
 import { html } from 'lit';
 import {
@@ -18,7 +17,6 @@ type NotificationState = {
   state: 'loading' | 'fetched' | 'idle' | 'error';
   unreadCount: number;
   notifications: Notification[];
-  socket?: WebSocket;
 };
 
 const initialState: NotificationState = {
@@ -40,22 +38,22 @@ export const fetchNotifications = createAsyncThunk(
   }
 );
 
+let socket: WebSocket | undefined;
+
 export const startNotifications = createAsyncThunk(
   'notifications/start',
   async (_, { dispatch }) => {
-    const socket = connectNotifications();
+    socket = connectNotifications();
     socket.onmessage = onNotification((notification) => {
       dispatch(addNotification(notification));
     });
-    return socket;
   }
 );
 
 export const stopNotifications = createAsyncThunk(
   'notifications/stop',
-  async (_, { getState }) => {
-    const state = getState() as RootState;
-    state.notification.socket?.close(1000, 'Signed out');
+  async () => {
+    socket?.close(1000, 'Signed out');
   }
 );
 
@@ -104,13 +102,6 @@ export const notificationSlice = createSlice({
     builder.addCase(fetchNotifications.fulfilled, (state, action) => {
       state.state = 'fetched';
       state.notifications = action.payload;
-    });
-
-    builder.addCase(startNotifications.fulfilled, (state, action) => {
-      state.socket = action.payload;
-    });
-    builder.addCase(stopNotifications.fulfilled, (state) => {
-      state.socket = undefined;
     });
   },
 });

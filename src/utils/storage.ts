@@ -4,6 +4,15 @@ export type RegisteredApps = {
   [key: string]: Application | undefined;
 };
 
+export type RegisteredAccount = {
+  accessToken: string;
+  username: string;
+};
+
+export type RegisteredAccounts = {
+  [key: string]: RegisteredAccount;
+};
+
 export default {
   get currentInstance() {
     return localStorage.getItem('currentInstance') || undefined;
@@ -17,6 +26,12 @@ export default {
   },
   set apps(value: RegisteredApps) {
     localStorage.setItem('apps', JSON.stringify(value));
+  },
+  get accounts(): RegisteredAccounts {
+    return JSON.parse(localStorage.getItem('registeredAccounts') || '{}');
+  },
+  set accounts(value: RegisteredAccounts) {
+    localStorage.setItem('registeredAccounts', JSON.stringify(value));
   },
   get currentApp(): Application | undefined {
     const currentInstance = localStorage.getItem('currentInstance');

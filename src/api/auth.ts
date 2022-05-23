@@ -61,7 +61,7 @@ export async function authenticateUser(code: string): Promise<string> {
   storage.accessToken = json.access_token;
   setTimeout(() => {
     Router.go('/timeline');
-  }, 200);
+  }, 500);
   return json.access_token;
 }
 

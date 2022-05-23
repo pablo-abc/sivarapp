@@ -182,6 +182,11 @@ export class SvAccountMini extends LitElement {
             </sl-badge>
           </sl-menu-item>
           <sl-divider></sl-divider>
+          <sl-menu-item>
+            <sl-icon name="shuffle" slot="prefix"></sl-icon>
+            Change account
+          </sl-menu-item>
+          <sl-divider></sl-divider>
           <sl-menu-item value="sign-out">
             <sl-icon name="box-arrow-left" slot="prefix"></sl-icon>
             Sign out
