@@ -67,11 +67,11 @@ export async function authenticateUser(code: string): Promise<string> {
 
 export async function unauthenticateUser() {
   const token = storage.accessToken;
+  const instance = storage.currentApp;
+  const currentInstance = storage.currentInstance;
+  if (!instance || !currentInstance) return;
   try {
     if (token) {
-      const instance = storage.currentApp;
-      const currentInstance = storage.currentInstance;
-      if (!instance || !currentInstance) return;
       const formData = new FormData();
       formData.append('token', token || '');
       formData.append('client_id', instance.client_id);
@@ -84,6 +84,9 @@ export async function unauthenticateUser() {
   } catch {
     return;
   } finally {
+    const currentAccounts = storage.accounts;
+    delete currentAccounts[currentInstance];
+    storage.accounts = currentAccounts;
     storage.accessToken = undefined;
     setTimeout(() => {
       Router.go('/');
