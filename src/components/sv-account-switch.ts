@@ -1,11 +1,13 @@
+import type { SlDialog } from '@shoelace-style/shoelace';
 import { LitElement, html, css } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, state, query } from 'lit/decorators.js';
 import type { RegisteredAccount } from '@utils/storage';
 import storage from '@utils/storage';
 import { StoreController } from '@store/controller';
 import { switchInstance } from '@store/auth';
 
 import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import '@shoelace-style/shoelace/dist/components/visually-hidden/visually-hidden.js';
 import '@components/sv-signin-instance';
 
@@ -40,6 +42,9 @@ export class SvAccountSwitch extends LitElement {
   @state()
   showForm = false;
 
+  @query('sl-dialog')
+  dialog!: SlDialog;
+
   #store = new StoreController(this);
 
   override connectedCallback(): void {
@@ -64,7 +69,21 @@ export class SvAccountSwitch extends LitElement {
     this.showForm = !this.showForm;
   }
 
-  override render() {
+  show() {
+    this.dialog.show();
+  }
+
+  hide() {
+    this.dialog.hide();
+  }
+
+  #handleClose() {
+    setTimeout(() => {
+      this.showForm = false;
+    }, 500);
+  }
+
+  #renderContent() {
     if (this.showForm) return html`<sv-signin-instance></sv-signin-instance>`;
     return html`
       <ul>
@@ -90,6 +109,18 @@ export class SvAccountSwitch extends LitElement {
           </sl-button>
         </li>
       </ul>
+    `;
+  }
+
+  override render() {
+    return html`
+      <sl-dialog
+        @sl-request-close=${this.#handleClose}
+        label="Switch account"
+        id="switch-account-dialog"
+      >
+        ${this.#renderContent()}
+      </sl-dialog>
     `;
   }
 }
