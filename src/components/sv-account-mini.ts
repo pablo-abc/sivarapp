@@ -16,6 +16,8 @@ import '@shoelace-style/shoelace/dist/components/menu/menu.js';
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+import '@components/sv-account-switch';
 import { fetchMe } from '@store/account';
 import { unauthenticate } from '@store/auth';
 import storage from '@utils/storage';
@@ -91,8 +93,8 @@ export class SvAccountMini extends LitElement {
   @state()
   account?: Account;
 
-  @query('sl-dialog')
-  dialog!: SlDialog;
+  @query('#switch-account-dialog')
+  switchAccountDialog!: SlDialog;
 
   @state()
   unreadNotifications = 0;
@@ -131,6 +133,9 @@ export class SvAccountMini extends LitElement {
         break;
       case 'open-direct':
         Router.go('/conversations');
+        break;
+      case 'change-account':
+        this.switchAccountDialog.show();
         break;
     }
   }
@@ -182,7 +187,7 @@ export class SvAccountMini extends LitElement {
             </sl-badge>
           </sl-menu-item>
           <sl-divider></sl-divider>
-          <sl-menu-item>
+          <sl-menu-item value="change-account">
             <sl-icon name="shuffle" slot="prefix"></sl-icon>
             Change account
           </sl-menu-item>
@@ -193,6 +198,9 @@ export class SvAccountMini extends LitElement {
           </sl-menu-item>
         </sl-menu>
       </sl-dropdown>
+      <sl-dialog label="Switch account" id="switch-account-dialog">
+        <sv-account-switch></sv-account-switch>
+      </sl-dialog>
     `;
   }
 }
