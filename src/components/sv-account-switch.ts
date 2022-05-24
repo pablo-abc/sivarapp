@@ -1,10 +1,11 @@
 import type { SlDialog } from '@shoelace-style/shoelace';
 import { LitElement, html, css } from 'lit';
-import { customElement, state, query } from 'lit/decorators.js';
+import { customElement, state, query, property } from 'lit/decorators.js';
 import type { RegisteredAccount } from '@utils/storage';
 import storage from '@utils/storage';
 import { StoreController } from '@store/controller';
 import { switchInstance } from '@store/auth';
+import { Router } from '@vaadin/router';
 
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
@@ -37,13 +38,13 @@ export class SvAccountSwitch extends LitElement {
   accounts: (RegisteredAccount & { instanceName: string })[] = [];
 
   @state()
-  loadingInstance?: string;
-
-  @state()
   showForm = false;
 
   @query('sl-dialog')
   dialog!: SlDialog;
+
+  @property()
+  currentInstance?: string;
 
   #store = new StoreController(this);
 
@@ -58,10 +59,10 @@ export class SvAccountSwitch extends LitElement {
   }
 
   #switchAccount(instance: string) {
-    this.loadingInstance = instance;
     this.#store.dispatch(switchInstance(instance));
+    this.hide();
     setTimeout(() => {
-      location.href = '/timeline';
+      Router.go('/timeline');
     }, 500);
   }
 
@@ -93,8 +94,7 @@ export class SvAccountSwitch extends LitElement {
               <sl-button
                 outline
                 @click=${() => this.#switchAccount(account.instanceName)}
-                ?disabled=${storage.currentInstance === account.instanceName}
-                ?loading=${this.loadingInstance === account.instanceName}
+                ?disabled=${this.currentInstance === account.instanceName}
               >
                 <sl-visually-hidden>Switch to:</sl-visually-hidden>
                 ${account.username}@${account.instanceName}

@@ -4,13 +4,15 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import link from '@styles/link';
+import { connect } from '@store/connect';
+import type { RootState } from '@store/store';
+import storage from '@utils/storage';
 
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
 import '@components/sv-account-mini';
-import storage from '@utils/storage';
 
 @customElement('sv-title')
-export class SvTitle extends LitElement {
+export class SvTitle extends connect(LitElement) {
   static styles = [
     link,
     css`
@@ -50,6 +52,16 @@ export class SvTitle extends LitElement {
   @property()
   homeLink = '/';
 
+  override stateChanged(state: RootState) {
+    this.instance = state.auth.instanceName;
+  }
+
+  async #fetchInstance() {
+    this.homeLink = '/timeline';
+    const instance = await getInstance();
+    this.heading = instance.title;
+  }
+
   connectedCallback() {
     super.connectedCallback();
     if (!this.authenticated) {
@@ -57,10 +69,12 @@ export class SvTitle extends LitElement {
       this.homeLink = '/';
       return;
     }
-    this.homeLink = '/timeline';
-    getInstance().then((instance) => {
-      this.heading = instance.title;
-    });
+  }
+
+  willUpdate(changed: PropertyValues<this>) {
+    if (changed.has('instance') && this.authenticated) {
+      this.#fetchInstance();
+    }
   }
 
   updated(changed: PropertyValues<this>) {

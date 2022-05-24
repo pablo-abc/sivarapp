@@ -1,6 +1,6 @@
 import type { RootState } from '@store/store';
 import type { Status } from '@types';
-import { LitElement, html, css, nothing } from 'lit';
+import { LitElement, html, css, nothing, type PropertyValues } from 'lit';
 import { customElement, state, property } from 'lit/decorators.js';
 import { getTimeline } from '@api/timelines';
 import { connect } from '@store/connect';
@@ -10,7 +10,6 @@ import '@components/sv-fetch-more-button';
 import '@components/sv-toot-compose';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
-import storage from '@utils/storage';
 
 export const tagName = 'sv-timeline';
 
@@ -89,15 +88,21 @@ export class SvTimeline extends connect(LitElement) {
   @state()
   accountId?: string;
 
-  connectedCallback() {
-    super.connectedCallback();
-    this.fetchNext();
-  }
+  @state()
+  instance?: string;
 
   override stateChanged(state: RootState) {
-    const currentInstance = storage.currentInstance;
+    const currentInstance = state.auth.instanceName;
+    this.instance = currentInstance;
     if (!currentInstance) return;
     this.accountId = state.account.accounts[currentInstance]?.id;
+  }
+
+  override willUpdate(changed: PropertyValues<this>) {
+    if (changed.has('instance')) {
+      this.toots = [];
+      this.fetchNext();
+    }
   }
 
   async fetchNext() {

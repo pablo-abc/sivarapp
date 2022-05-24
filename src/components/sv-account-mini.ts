@@ -1,11 +1,15 @@
 import type { SlDialog, SlMenuItem } from '@shoelace-style/shoelace';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type PropertyValues } from 'lit';
 import { customElement, state, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import type { Account } from '@types';
 import link from '@styles/link';
 import { Router } from '@vaadin/router';
 import { StoreController } from '@store/controller';
+import { fetchMe } from '@store/account';
+import { unauthenticate } from '@store/auth';
+import storage from '@utils/storage';
+import { ifDefined } from 'lit/directives/if-defined.js';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/badge/badge.js';
@@ -17,9 +21,6 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@components/sv-account-switch';
-import { fetchMe } from '@store/account';
-import { unauthenticate } from '@store/auth';
-import storage from '@utils/storage';
 
 @customElement('sv-account-mini')
 export class SvAccountMini extends LitElement {
@@ -73,6 +74,9 @@ export class SvAccountMini extends LitElement {
       if (!currentInstance) return;
       return state.account.accounts[currentInstance];
     },
+    instance(state) {
+      return state.auth.instanceName;
+    },
     loading(state) {
       const currentInstance = storage.currentInstance;
       if (!currentInstance) return;
@@ -92,6 +96,9 @@ export class SvAccountMini extends LitElement {
   @state()
   account?: Account;
 
+  @state()
+  instance?: string;
+
   @query('#switch-account-dialog')
   switchAccountDialog!: SlDialog;
 
@@ -100,7 +107,12 @@ export class SvAccountMini extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.#store.dispatch(fetchMe());
+  }
+
+  willUpdate(changed: PropertyValues<this>) {
+    if (changed.has('instance')) {
+      this.#store.dispatch(fetchMe());
+    }
   }
 
   #renderSkeleton() {
@@ -197,7 +209,10 @@ export class SvAccountMini extends LitElement {
           </sl-menu-item>
         </sl-menu>
       </sl-dropdown>
-      <sv-account-switch id="switch-account-dialog"></sv-account-switch>
+      <sv-account-switch
+        currentInstance=${ifDefined(this.instance)}
+        id="switch-account-dialog"
+      ></sv-account-switch>
     `;
   }
 }

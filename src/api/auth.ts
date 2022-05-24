@@ -85,11 +85,8 @@ export async function unauthenticateUser() {
     return;
   } finally {
     const currentAccounts = storage.accounts;
-    console.log(currentAccounts);
     delete currentAccounts[currentInstance];
-    console.log(currentAccounts);
     const nextInstance = Object.keys(currentAccounts)[0];
-    console.log(nextInstance);
     storage.accounts = currentAccounts;
     storage.currentInstance = nextInstance;
     storage.accessToken = nextInstance

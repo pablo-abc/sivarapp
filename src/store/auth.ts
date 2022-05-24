@@ -79,7 +79,10 @@ export const switchInstance = createAsyncThunk(
       dispatch(startNotifications());
       dispatch(fetchNotifications());
     }, 500);
-    return currentAccount;
+    return {
+      ...currentAccount,
+      instanceName: instance,
+    };
   }
 );
 
@@ -135,6 +138,7 @@ export const authSlice = createSlice({
     builder.addCase(switchInstance.fulfilled, (state, action) => {
       state.accessToken = action.payload.accessToken;
       state.username = action.payload.username;
+      state.instanceName = action.payload.instanceName;
     });
   },
 });
