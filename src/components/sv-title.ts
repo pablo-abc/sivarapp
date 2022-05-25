@@ -1,7 +1,7 @@
 import { getInstance } from '@api/instance';
 import type { PropertyValues } from 'lit';
 import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import link from '@styles/link';
 import { connect } from '@store/connect';
@@ -9,6 +9,7 @@ import type { RootState } from '@store/store';
 import storage from '@utils/storage';
 
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
+import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 import '@components/sv-account-mini';
 
 @customElement('sv-title')
@@ -37,6 +38,10 @@ export class SvTitle extends connect(LitElement) {
         list-style-type: none;
         margin-top: 1rem;
       }
+
+      sl-skeleton {
+        width: 10rem;
+      }
     `,
   ];
 
@@ -52,14 +57,22 @@ export class SvTitle extends connect(LitElement) {
   @property()
   homeLink = '/';
 
+  @state()
+  loading = false;
+
   override stateChanged(state: RootState) {
     this.instance = state.auth.instanceName;
   }
 
   async #fetchInstance() {
-    this.homeLink = '/timeline';
-    const instance = await getInstance();
-    this.heading = instance.title;
+    this.loading = true;
+    try {
+      this.homeLink = '/timeline';
+      const instance = await getInstance();
+      this.heading = instance.title;
+    } finally {
+      this.loading = false;
+    }
   }
 
   connectedCallback() {
@@ -87,7 +100,15 @@ export class SvTitle extends connect(LitElement) {
     return html`
       <div id="header">
         <div id="items-left">
-          <h1><a href=${this.homeLink}>${this.heading}</a></h1>
+          <h1>
+            <a href=${this.homeLink}>
+              ${when(
+                this.loading,
+                () => html`<sl-skeleton effect="pulse"></sl-skeleton>`,
+                () => this.heading
+              )}
+            </a>
+          </h1>
         </div>
         ${when(
           this.authenticated,
