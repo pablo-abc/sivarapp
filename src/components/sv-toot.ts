@@ -390,6 +390,23 @@ export class SvToot extends LitElement {
     return html`<sv-media .media=${media}></sv-media>`;
   }
 
+  renderCard() {
+    const card = this.#status?.card;
+    if (!card || this.#status?.sensitive) return nothing;
+    return html`
+      <a href=${card.url}>
+        <sl-card>
+          ${when(
+            card.image,
+            () => html`<img slot="image" src=${card.image!} /> `
+          )}
+          <strong>${card.title}</strong><br />
+          ${card.provider_name || card.author_name || card.description}
+        </sl-card>
+      </a>
+    `;
+  }
+
   renderHeader() {
     if (!this.status) return nothing;
     const reblog = this.status.reblog;
@@ -466,7 +483,7 @@ export class SvToot extends LitElement {
       <sl-card>
         ${this.renderHeader()}
         <div id="content">${this.renderContent()}</div>
-        ${this.renderMedia()}
+        ${this.renderMedia()} ${this.renderCard()}
         <div id="toot-footer" slot="footer">
           <div>
             <sl-tooltip content="See replies">
