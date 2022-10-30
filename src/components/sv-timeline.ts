@@ -2,8 +2,9 @@ import type { RootState } from '@store/store';
 import type { Status } from '@types';
 import { LitElement, html, css, nothing, type PropertyValues } from 'lit';
 import { customElement, state, property } from 'lit/decorators.js';
-import { getTimeline } from '@api/timelines';
 import { connect } from '@store/connect';
+import { store } from '@store/store';
+import { fetchTimeline } from '@store/timeline';
 
 import './sv-toot';
 import '@components/sv-fetch-more-button';
@@ -96,31 +97,27 @@ export class SvTimeline extends connect(LitElement) {
     this.instance = currentInstance;
     if (!currentInstance) return;
     this.accountId = state.account.accounts[currentInstance]?.id;
+    this.loading = state.timeline.loading;
+    this.empty =
+      state.timeline.instances[currentInstance]?.[this.timeline]?.empty ??
+      false;
+    this.toots =
+      state.timeline.instances[currentInstance]?.[this.timeline]?.statuses ??
+      [];
   }
 
   override willUpdate(changed: PropertyValues<this>) {
-    if (changed.has('instance')) {
-      this.toots = [];
-      this.fetchNext();
+    if (changed.has('instance') && this.instance) {
+      const toots =
+        store.getState().timeline.instances[this.instance]?.[this.timeline]
+          ?.statuses ?? [];
+      this.toots = toots;
+      if (toots.length === 0) this.fetchNext();
     }
   }
 
   async fetchNext() {
-    try {
-      this.loading = true;
-      if (this.toots.length === 0) {
-        this.toots = await getTimeline(this.timeline);
-      } else {
-        const newToots = await getTimeline(this.timeline, {
-          max_id: this.toots[this.toots.length - 1].id,
-        });
-        if (newToots.length === 0) {
-          this.empty = true;
-        } else this.toots = [...this.toots, ...newToots];
-      }
-    } finally {
-      this.loading = false;
-    }
+    store.dispatch(fetchTimeline(this.timeline));
   }
 
   override render() {

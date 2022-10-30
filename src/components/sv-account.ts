@@ -194,6 +194,14 @@ export class SvAccount extends LitElement {
         </sl-button>
       `;
     }
+    if (this.account?.moved) {
+      const moved = this.account.moved;
+      return html`
+        <sl-button variant="neutral" href=${`/accounts/${moved.id}`}>
+          Go to new profile
+        </sl-button>
+      `;
+    }
     return html`
       <sl-button
         @click=${this.#followAccount}

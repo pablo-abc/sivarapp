@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import accountReducer from './account';
 import authReducer from './auth';
 import instanceReducer from './instance';
+import timelineReducer from './timeline';
 import notificationReducer, {
   addNotification,
   fetchNotifications,
@@ -17,6 +18,7 @@ export const store = configureStore({
     auth: authReducer,
     instance: instanceReducer,
     notification: notificationReducer,
+    timeline: timelineReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(notifyMiddleware),
