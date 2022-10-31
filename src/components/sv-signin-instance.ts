@@ -86,15 +86,18 @@ export class SvSigninInstance extends LitElement {
           instance: this.#getInstanceName(values.instance),
         };
       },
+      validate(values: any) {
+        if (!values.instance) {
+          return {
+            instance: 'Must not be empty',
+          };
+        }
+        return {};
+      },
       extend: reporter,
       debounced: {
         timeout: 1000,
         validate: async (values: any) => {
-          if (!values.instance) {
-            return {
-              instance: 'Must not be empty',
-            };
-          }
           try {
             const response = await fetch(
               `https://${values.instance}/api/v1/instance`
