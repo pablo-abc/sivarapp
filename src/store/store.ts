@@ -3,7 +3,7 @@ import accountReducer from './account';
 import authReducer from './auth';
 import instanceReducer from './instance';
 import timelineReducer from './timeline';
-import socketReducer, { startSocket, stopSocket } from './socket';
+import { startSocket, stopSocket, sockets } from './socket';
 import notificationReducer, {
   fetchNotifications,
   clearNotifications,
@@ -17,7 +17,6 @@ export const store = configureStore({
     instance: instanceReducer,
     notification: notificationReducer,
     timeline: timelineReducer,
-    socket: socketReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(notifyMiddleware),
@@ -33,7 +32,7 @@ function handleNotifications(state: RootState) {
 }
 
 function handleSocketConnection(state: RootState) {
-  const socket = state.socket.user;
+  const socket = sockets.user;
   if (state.auth.authenticated && !socket) {
     store.dispatch(startSocket());
   }

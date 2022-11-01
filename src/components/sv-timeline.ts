@@ -4,7 +4,7 @@ import { LitElement, html, css, nothing, type PropertyValues } from 'lit';
 import { customElement, state, property } from 'lit/decorators.js';
 import { connect } from '@store/connect';
 import { store } from '@store/store';
-import { fetchTimeline } from '@store/timeline';
+import { fetchTimeline, fetchNewStatuses } from '@store/timeline';
 
 import './sv-toot';
 import '@components/sv-fetch-more-button';
@@ -120,6 +120,14 @@ export class SvTimeline extends connect(LitElement) {
     store.dispatch(fetchTimeline(this.timeline));
   }
 
+  fetchNew(timeline: typeof this.timeline) {
+    return (event: Event) => {
+      if (timeline !== this.timeline) return;
+      event.preventDefault();
+      store.dispatch(fetchNewStatuses(timeline));
+    };
+  }
+
   override render() {
     return html`
       <div id="actions">
@@ -128,18 +136,21 @@ export class SvTimeline extends connect(LitElement) {
           <sl-button
             href="/timeline/home"
             ?data-selected=${this.timeline === 'home'}
+            @click=${this.fetchNew('home')}
           >
             Home
           </sl-button>
           <sl-button
             href="/timeline/local"
             ?data-selected=${this.timeline === 'local'}
+            @click=${this.fetchNew('local')}
           >
             Local
           </sl-button>
           <sl-button
             href="/timeline/public"
             ?data-selected=${this.timeline === 'public'}
+            @click=${this.fetchNew('public')}
           >
             Public
           </sl-button>

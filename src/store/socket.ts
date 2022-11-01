@@ -1,52 +1,37 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { connectSocket } from '@api/socket';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { connectSocket, type Stream } from '@api/socket';
 import { onNotification } from '@utils/socket';
 import { addNotification } from './notification';
 
 import '@components/sv-notification';
 
-type SocketState = {
+type Sockets = {
   user?: WebSocket;
   public?: WebSocket;
   local?: WebSocket;
 };
 
+export const sockets: Sockets = {};
+
 export const startSocket = createAsyncThunk(
   'socket/start',
-  async (_, { dispatch, getState }) => {
-    const state: any = getState();
-    state.socket.user?.close(1000, 'Replaced');
-    const socket = connectSocket();
-    socket.addEventListener(
-      'message',
-      onNotification((notification) => {
-        dispatch(addNotification(notification));
-      })
-    );
-    return socket;
+  async (stream: Stream | undefined = 'user', { dispatch }) => {
+    sockets.user?.close(1000, 'Replaced');
+    const socket = connectSocket(stream);
+    if (stream === 'user') {
+      socket.addEventListener(
+        'message',
+        onNotification((notification) => {
+          dispatch(addNotification(notification));
+        })
+      );
+    }
+    sockets.user = socket;
   }
 );
 
-export const stopSocket = createAsyncThunk('socket/stop', async (_, store) => {
-  const state: any = store.getState();
-  const socket: WebSocket | undefined = state.socket.user;
+export const stopSocket = createAsyncThunk('socket/stop', async () => {
+  const socket: WebSocket | undefined = sockets.user;
   socket?.close(1000, 'Signed out');
+  sockets.user = undefined;
 });
-
-const initialState: SocketState = {};
-
-export const socketSlice = createSlice({
-  name: 'socket',
-  initialState,
-  reducers: {},
-  extraReducers(builder) {
-    builder.addCase(startSocket.fulfilled, (state, action) => {
-      state.user = action.payload;
-    });
-    builder.addCase(stopSocket.fulfilled, (state) => {
-      state.user = undefined;
-    });
-  },
-});
-
-export default socketSlice.reducer;
