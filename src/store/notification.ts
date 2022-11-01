@@ -8,8 +8,6 @@ import {
 } from '@reduxjs/toolkit';
 import type { Notification } from '@types';
 import { toast } from '@utils/toast';
-import { connectNotifications } from '@api/account';
-import { onNotification } from '@utils/socket';
 
 import '@components/sv-notification';
 
@@ -37,26 +35,6 @@ export const fetchNotifications = createAsyncThunk(
     return getNotifications(params);
   }
 );
-
-let socket: WebSocket | undefined;
-
-export const startNotifications = createAsyncThunk(
-  'notifications/start',
-  async (_, { dispatch }) => {
-    socket = connectNotifications();
-    socket.onmessage = onNotification((notification) => {
-      dispatch(addNotification(notification));
-    });
-  }
-);
-
-export const stopNotifications = createAsyncThunk(
-  'notifications/stop',
-  async () => {
-    socket?.close(1000, 'Signed out');
-  }
-);
-
 export const notifyMiddleware: Middleware<any> =
   () => (next) => async (action) => {
     await next(action);

@@ -1,4 +1,4 @@
-import type { Notification } from '@types';
+import type { Notification, Status } from '@types';
 
 export function onNotification(
   subscriber: (notification: Notification) => void
@@ -8,5 +8,14 @@ export function onNotification(
     if (data.event !== 'notification') return;
     const notification: Notification = JSON.parse(data.payload);
     subscriber(notification);
+  };
+}
+
+export function onUpdate(subscriber: (status: Status) => void) {
+  return function (event: MessageEvent<string>) {
+    const data = JSON.parse(event.data);
+    if (data.event !== 'update') return;
+    const status: Status = JSON.parse(data.payload);
+    subscriber(status);
   };
 }

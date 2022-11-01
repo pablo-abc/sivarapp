@@ -2,8 +2,10 @@ import { Conversation, Status } from '@types';
 import storage from '@utils/storage';
 import { fetchJSON } from './fetch';
 
+type Timeline = 'public' | 'home' | 'local';
+
 export async function getTimeline(
-  type: 'public' | 'home' | 'local' = 'public',
+  type: Timeline = 'public',
   params?: Record<string, any>
 ): Promise<Status[]> {
   const timeline = type === 'home' ? 'home' : 'public';

@@ -7,6 +7,7 @@ import { renderEmoji } from '@utils/emoji';
 import link from '@styles/link';
 import emoji from '@styles/emoji';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { truncate } from '@utils/truncate';
 import { followAccount, unfollowAccount } from '@api/account';
 
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
@@ -197,8 +198,12 @@ export class SvAccount extends LitElement {
     if (this.account?.moved) {
       const moved = this.account.moved;
       return html`
-        <sl-button variant="neutral" href=${`/accounts/${moved.id}`}>
-          Go to new profile
+        <sl-button
+          size="small"
+          variant="neutral"
+          href=${`/accounts/${moved.id}`}
+        >
+          Moved: ${truncate(moved.acct, 7)}
         </sl-button>
       `;
     }

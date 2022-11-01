@@ -5,12 +5,8 @@ import type { Application } from '@types';
 import { toast } from '@utils/toast';
 import storage, { type RegisteredAccounts } from '@utils/storage';
 import { Router } from '@vaadin/router';
-import {
-  startNotifications,
-  stopNotifications,
-  fetchNotifications,
-  clearNotifications,
-} from './notification';
+import { fetchNotifications, clearNotifications } from './notification';
+import { startSocket, stopSocket } from './socket';
 import { getMe } from '@api/account';
 
 export type AuthState = {
@@ -36,7 +32,7 @@ export const authenticate = createAsyncThunk(
     const accessToken = await authenticateUser(code);
     const user = await getMe();
     const url = new URL(user.url);
-    dispatch(startNotifications());
+    dispatch(startSocket());
     dispatch(fetchNotifications());
     storage.accounts = {
       ...storage.accounts,
@@ -57,7 +53,7 @@ export const unauthenticate = createAsyncThunk(
   'auth/unauthenticate',
   async (_, { dispatch }) => {
     await unauthenticateUser();
-    dispatch(stopNotifications());
+    dispatch(stopSocket());
     dispatch(clearNotifications());
   }
 );
@@ -71,12 +67,12 @@ export const switchInstance = createAsyncThunk(
     if (!currentAccount) {
       throw new Error('Failed to switch');
     }
-    dispatch(stopNotifications());
+    dispatch(stopSocket());
     dispatch(clearNotifications());
     storage.currentInstance = instance;
     storage.accessToken = currentAccount.accessToken;
     setTimeout(() => {
-      dispatch(startNotifications());
+      dispatch(startSocket());
       dispatch(fetchNotifications());
     }, 500);
     return {

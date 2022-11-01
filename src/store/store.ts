@@ -3,14 +3,12 @@ import accountReducer from './account';
 import authReducer from './auth';
 import instanceReducer from './instance';
 import timelineReducer from './timeline';
+import socketReducer, { startSocket, stopSocket } from './socket';
 import notificationReducer, {
-  addNotification,
   fetchNotifications,
   clearNotifications,
   notifyMiddleware,
 } from './notification';
-import { connectNotifications } from '@api/account';
-import { onNotification } from '@utils/socket';
 
 export const store = configureStore({
   reducer: {
@@ -19,24 +17,13 @@ export const store = configureStore({
     instance: instanceReducer,
     notification: notificationReducer,
     timeline: timelineReducer,
+    socket: socketReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(notifyMiddleware),
 });
 
-let notificationSocket: WebSocket | undefined;
-
 function handleNotifications(state: RootState) {
-  if (state.auth.authenticated && !notificationSocket) {
-    notificationSocket = connectNotifications();
-    notificationSocket.onmessage = onNotification((notification) => {
-      store.dispatch(addNotification(notification));
-    });
-  }
-  if (!state.auth.authenticated && notificationSocket) {
-    notificationSocket.close(1000, 'Signed Out');
-    notificationSocket = undefined;
-  }
   if (state.auth.authenticated && state.notification.state === 'idle') {
     store.dispatch(fetchNotifications());
   }
@@ -45,7 +32,19 @@ function handleNotifications(state: RootState) {
   }
 }
 
+function handleSocketConnection(state: RootState) {
+  const socket = state.socket.user;
+  if (state.auth.authenticated && !socket) {
+    store.dispatch(startSocket());
+  }
+  if (!state.auth.authenticated && socket) {
+    store.dispatch(stopSocket());
+  }
+}
+
 handleNotifications(store.getState());
+
+handleSocketConnection(store.getState());
 
 export const isAuthenticated = () => !!store.getState().auth.authenticated;
 

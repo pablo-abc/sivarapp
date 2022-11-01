@@ -8,14 +8,17 @@ export type TimelineState = {
   instances: {
     [key: string]: {
       public?: {
+        newStatuses: Status[];
         statuses: Status[];
         empty: boolean;
       };
       home?: {
+        newStatuses: Status[];
         statuses: Status[];
         empty: boolean;
       };
       local?: {
+        newStatuses: Status[];
         statuses: Status[];
         empty: boolean;
       };
@@ -71,6 +74,7 @@ export const timelineSlice = createSlice({
       const oldStatuses = state.instances[instance][timeline]?.statuses ?? [];
       state.instances[instance][timeline] = {
         statuses: [...oldStatuses, ...statuses],
+        newStatuses: [],
         empty: statuses.length === 0,
       };
       state.loading = false;
