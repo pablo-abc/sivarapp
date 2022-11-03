@@ -4,9 +4,8 @@ specifiers:
   '@felte/element': ^0.5.2
   '@felte/reporter-element': ^0.4.2
   '@felte/validator-vest': ^1.0.9
-  '@github/time-elements': ^3.1.2
   '@reduxjs/toolkit': ^1.8.1
-  '@shoelace-style/shoelace': ^2.0.0-beta.73
+  '@shoelace-style/shoelace': 2.0.0-beta.83
   '@types/node': ^17.0.31
   '@vaadin/router': ^1.7.4
   gh-pages: ^4.0.0
@@ -21,9 +20,8 @@ dependencies:
   '@felte/element': 0.5.2
   '@felte/reporter-element': 0.4.2
   '@felte/validator-vest': 1.0.9_vest@4.3.4
-  '@github/time-elements': 3.1.2
   '@reduxjs/toolkit': 1.8.1
-  '@shoelace-style/shoelace': 2.0.0-beta.73
+  '@shoelace-style/shoelace': 2.0.0-beta.83
   '@vaadin/router': 1.7.4
   lit: 2.2.3
   redux: 4.2.0
@@ -79,26 +77,26 @@ packages:
       vest: 4.3.4
     dev: false
 
-  /@floating-ui/core/0.5.1:
-    resolution: {integrity: sha512-LOFg65vdU4o4eZjVKNhu7VXbjdnY0amMw9sydLtKZiCNwj0eMD06rmktbWp9L/f6w6s9Qqe22lkks8PbwYwy4Q==}
+  /@floating-ui/core/1.0.1:
+    resolution: {integrity: sha512-bO37brCPfteXQfFY0DyNDGB3+IMe4j150KFQcgJ5aBP295p9nBGeHEs/p0czrRbtlHq4Px/yoPXO/+dOCcF4uA==}
     dev: false
 
-  /@floating-ui/dom/0.3.1:
-    resolution: {integrity: sha512-HJX/2xgGPt01YHQNAya2taqg5HDnY6ipF0B0Bk/Th2s4FD9R89Ecw3TEegLLO+VrQnPEGbuHOGJ6Fr3BPM0DYg==}
+  /@floating-ui/dom/1.0.4:
+    resolution: {integrity: sha512-maYJRv+sAXTy4K9mzdv0JPyNW5YPVHrqtY90tEdI6XNpuLOP26Ci2pfwPsKBA/Wh4Z3FX5sUrtUFTdMYj9v+ug==}
     dependencies:
-      '@floating-ui/core': 0.5.1
+      '@floating-ui/core': 1.0.1
     dev: false
 
-  /@github/time-elements/3.1.2:
-    resolution: {integrity: sha512-YVtZVLBikP6I7na22kfB9PKIseISwX41MFJ7lPuNz1VVH2IR5cpRRU6F1X6kcchPChljuvMUR4OiwMWHOJQ8kQ==}
-    dev: false
-
-  /@lit-labs/react/1.0.4:
-    resolution: {integrity: sha512-Sy4RCxTZpTE2TwByjVac6gC7jzr8bCQC6s9bJhhJDKos4ZlN2cqcuVz63n0mpSSr1zxFh+Z0o0VR223l36Y4Ag==}
+  /@lit-labs/react/1.0.9:
+    resolution: {integrity: sha512-yjkdcciypTIJ6vUXzZJHTAwt2fdATUAfZMkHRbLpbgEnr8OwpwVOQ04me1Y7p5Vwtmcd4GWY0/BQ6G8jUgCK1w==}
     dev: false
 
   /@lit/reactive-element/1.3.2:
     resolution: {integrity: sha512-A2e18XzPMrIh35nhIdE4uoqRzoIpEU5vZYuQN4S3Ee1zkGdYC27DP12pewbw/RLgPHzaE4kx/YqxMzebOpm0dA==}
+    dev: false
+
+  /@lit/reactive-element/1.4.1:
+    resolution: {integrity: sha512-qDv4851VFSaBWzpS02cXHclo40jsbAjRXnebNXpm0uVg32kCneZPo9RYVQtrTNICtZ+1wAYHu1ZtxWSWMbKrBw==}
     dev: false
 
   /@reduxjs/toolkit/1.8.1:
@@ -122,20 +120,20 @@ packages:
     resolution: {integrity: sha512-Be+cahtZyI2dPKRm8EZSx3YJQ+jLvEcn3xzRP7tM4tqBnvd/eW/64Xh0iOf0t2w5P8iJKfdBbpVNE9naCaOf2g==}
     dev: false
 
-  /@shoelace-style/localize/2.1.3:
-    resolution: {integrity: sha512-AY3uF1Dzg3sBK4nKxvZ2KAjsdFxhLfHVWUpXXjIPaR+rPp8fxBWoNVvnLiROOV/cLg/zdLcU+Nn/xJdqcbEuDw==}
+  /@shoelace-style/localize/3.0.1:
+    resolution: {integrity: sha512-nmv1syJ3ormbGq29GsuxGRK6BFq7Jhx+kVFyuuozz0Pckkvk1SGk2vpZZcdnj2vRZCETvlVB7KYgakUwgGmn+A==}
     dev: false
 
-  /@shoelace-style/shoelace/2.0.0-beta.73:
-    resolution: {integrity: sha512-sOKRy+uimJAQDc8DCA65YihGUSUf0YVUC80KbvEY8RZHtP4gPX/Bzw7v/RPEGNLlPEOXAcqMNlKoLFPTqDuKbg==}
+  /@shoelace-style/shoelace/2.0.0-beta.83:
+    resolution: {integrity: sha512-dHVBtapuqxSRu3klBZhf9/LtEtircaLLnDajNbhuiBiY7PVCxjjf/9Kyd/S/BpbhKwMICqJr+PaKoCTd2iWDJA==}
     engines: {node: '>=14.17.0'}
     dependencies:
-      '@floating-ui/dom': 0.3.1
-      '@lit-labs/react': 1.0.4
+      '@floating-ui/dom': 1.0.4
+      '@lit-labs/react': 1.0.9
       '@shoelace-style/animations': 1.1.0
-      '@shoelace-style/localize': 2.1.3
+      '@shoelace-style/localize': 3.0.1
       color: 4.2.3
-      lit: 2.2.3
+      lit: 2.4.0
       qr-creator: 1.0.0
     dev: false
 
@@ -861,12 +859,26 @@ packages:
       '@types/trusted-types': 2.0.2
     dev: false
 
+  /lit-html/2.4.0:
+    resolution: {integrity: sha512-G6qXu4JNUpY6aaF2VMfaszhO9hlWw0hOTRFDmuMheg/nDYGB+2RztUSOyrzALAbr8Nh0Y7qjhYkReh3rPnplVg==}
+    dependencies:
+      '@types/trusted-types': 2.0.2
+    dev: false
+
   /lit/2.2.3:
     resolution: {integrity: sha512-5/v+r9dH3Pw/o0rhp/qYk3ERvOUclNF31bWb0FiW6MPgwdQIr+/KCt/p3zcd8aPl8lIGnxdGrVcZA+gWS6oFOQ==}
     dependencies:
       '@lit/reactive-element': 1.3.2
       lit-element: 3.2.0
       lit-html: 2.2.3
+    dev: false
+
+  /lit/2.4.0:
+    resolution: {integrity: sha512-fdgzxEtLrZFQU/BqTtxFQCLwlZd9bdat+ltzSFjvWkZrs7eBmeX0L5MHUMb3kYIkuS8Xlfnii/iI5klirF8/Xg==}
+    dependencies:
+      '@lit/reactive-element': 1.4.1
+      lit-element: 3.2.0
+      lit-html: 2.4.0
     dev: false
 
   /locate-path/5.0.0:
@@ -1214,7 +1226,7 @@ packages:
     dev: true
 
   /simple-swizzle/0.2.2:
-    resolution: {integrity: sha1-pNprY1/8zMoz9w0Xy5JZLeleVXo=}
+    resolution: {integrity: sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg==}
     dependencies:
       is-arrayish: 0.3.2
     dev: false

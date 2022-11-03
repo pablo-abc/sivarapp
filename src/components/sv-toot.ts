@@ -37,7 +37,7 @@ import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
 import '@shoelace-style/shoelace/dist/components/menu/menu.js';
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
-import '@github/time-elements/dist/relative-time-element.js';
+import '@shoelace-style/shoelace/dist/components/relative-time/relative-time.js';
 import '@components/sv-toot-compose';
 import '@components/sv-media';
 
@@ -92,7 +92,7 @@ export class SvToot extends LitElement {
         flex-direction: column;
       }
 
-      .info relative-time {
+      .info sl-relative-time {
         opacity: 0.6;
       }
 
@@ -452,7 +452,7 @@ export class SvToot extends LitElement {
                   </span>
                 `
               : nothing}
-            <relative-time datetime=${status.created_at}></relative-time>
+            <sl-relative-time date=${status.created_at}></sl-relative-time>
           </div>
         </div>
         ${this.renderOptionsMenu()}
