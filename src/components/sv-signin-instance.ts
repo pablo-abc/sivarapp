@@ -108,7 +108,7 @@ export class SvSigninInstance extends LitElement {
               };
             }
             const instance = await response.json();
-            if (!instance.uri || instance.uri !== values.instance) {
+            if (!instance.uri || !instance.uri.includes(values.instance)) {
               return {
                 instance: 'Must be a valid instance URL',
               };
