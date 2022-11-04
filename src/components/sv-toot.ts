@@ -447,7 +447,12 @@ export class SvToot extends LitElement {
                   <span class="header__reblog">
                     Reblogged by
                     <a href=${`/accounts/${this.status.account.id}`}>
-                      ${this.status.account.display_name}
+                      ${unsafeHTML(
+                        renderEmoji(
+                          this.status.account.display_name,
+                          this.status.account.emojis
+                        )
+                      )}
                     </a>
                   </span>
                 `
