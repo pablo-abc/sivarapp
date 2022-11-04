@@ -239,9 +239,8 @@ export class SvAccount extends LitElement {
                   <div class="field">
                     <dt>
                       <strong
-                        >${renderEmoji(
-                          field.name,
-                          this.account!.emojis
+                        >${unsafeHTML(
+                          renderEmoji(field.name, this.account!.emojis)
                         )}</strong
                       >
                       ${when(
